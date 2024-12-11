@@ -38,14 +38,14 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
 
   The app allows you to **load/unload the model** dynamically. This is useful when running on GPUs, as it avoids creating multiple GPU instances requiring more VRAM.
 
-1. **Run Binoculars Directly**:
+3. **Run Binoculars Directly**:
    ```bash
    docker compose exec binoculars bash -c "python3.10 main.py"
    ```
 
   You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
   
-1. **Run Binoculars via API**:
+4. **Run Binoculars via API**:
 
 You should offload the model from Gradio app that is started with the container or replace in the docker-compose file the `command` with `sleep infinity`.
 
@@ -59,8 +59,26 @@ It will start `FastAPI` on `127.0.0.1:8080`.
 
 You can test it with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
 
+*Usage example*:
 
-1. **Important Note**:
+```json
+/predict [POST]
+{
+   "content": "my text"
+}
+
+>> {
+   "score": 0.8846334218978882,
+   "class": 0,
+   "label": "Most likely AI-generated",
+   "total_elapsed_time": 23.35552716255188,
+   "total_token_count": 134,
+   "content_length": 661,
+   "chunk_count": 1
+}
+```
+
+5. **Important Note**:
    Always use `python3.10` for running Binoculars-related scripts (e.g., `python3.10 main.py`, `python3.10 -m pip install`) on Ubuntu 22.04. Avoid using the default `python` binary.
 
 ### **Hugging Face Deployment**

@@ -30,8 +30,10 @@ peered through telescopes with his large, round eyes, fellow researchers often r
 stars themselves whispered their secrets directly to him. Dr. Cosmos not only became a beacon of inspiration to 
 aspiring scientists but also proved that intellect and innovation can be found in the most unexpected of creatures.'''
 
+print("Sending raw text request...")
 # Send text content
 send_post_request(api_url, text=sample_string)
 
+print("Sending pdf request...")
 # Send a PDF file
 send_post_request(api_url, file_path="assets/sample_input.pdf")
