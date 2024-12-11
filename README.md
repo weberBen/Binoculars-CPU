@@ -8,6 +8,8 @@ See the online demo : [here](https://huggingface.co/spaces/ben-weber/Binoculars-
 
 ---
 
+![Demo Interface](assets/gradio-interface.png)
+
 The app allow you to run Binoculars with either **raw text** or **pdf**, via **GUI** (`Gradio`) or **API** (`FastAPI`).
 
 Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_CHAR`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
@@ -34,11 +36,9 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
 2. **Access the Gradio App**:
    Navigate to `http://127.0.0.1:7860` in your web browser to access the app (`app.py`).
 
-   ![Demo Interface](assets/gradio-interface.png)
-
   The app allows you to **load/unload the model** dynamically. This is useful when running on GPUs, as it avoids creating multiple GPU instances requiring more VRAM.
 
-3. **Run Binoculars Directly**:
+1. **Run Binoculars Directly**:
    ```bash
    docker compose exec binoculars bash -c "python3.10 main.py"
    ```
