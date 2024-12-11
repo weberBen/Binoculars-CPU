@@ -39,7 +39,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
     && python3.10 -m pip install --upgrade pip setuptools wheel gradio
 
-RUN python3.10 -m pip install datasets scikit-learn seaborn matplotlib spaces
+RUN python3.10 -m pip install datasets scikit-learn seaborn matplotlib spaces PyPDF2
 
 # Set the working directory
 WORKDIR /app
