@@ -8,8 +8,8 @@ This project adapts the [Binoculars](https://github.com/ahans30/Binoculars) code
 
 - **Accuracy**: On the `datasets` benchmark, we achieve **85% accuracy** with `SmolLM2-135M`.
 - **Throughput**:
-  - **HuggingFace free CPU Basic (2 vCPU x 16GB RAM)**: ~173 tokens/second (5.7 seconds for 1,000 tokens).
-  - **Consumer-grade CPU (16GB RAM)**: ~14 tokens/second (1 minute 10 seconds for 1,000 tokens).
+  - **HuggingFace free CPU Basic (2 vCPU x 16GB RAM)**: ~170 tokens/second (5.9 seconds for 1,000 tokens).
+  - **Consumer-grade CPU (16GB RAM)**: ~10 tokens/second (1 minute 30 seconds for 1,000 tokens).
 
 ---
 
