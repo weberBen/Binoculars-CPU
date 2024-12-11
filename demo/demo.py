@@ -94,7 +94,7 @@ with gr.Blocks(css=css,
         with gr.Column(scale=1):
             gr.HTML("""
             <p>
-            <a href="https://arxiv.org/abs/2401.12070" target="_blank">code</a>
+            <a href="https://arxiv.org/abs/2401.12070" target="_blank">Code</a>
                     
             <a href="https://arxiv.org/abs/2401.12070" target="_blank">Original paper</a>
                 
