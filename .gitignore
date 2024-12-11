@@ -165,3 +165,4 @@ samples/
 pkey*
 
 .gradio/
+results/
