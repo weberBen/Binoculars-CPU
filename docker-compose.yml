@@ -9,6 +9,7 @@ services:
     command: python3.10 app.py
     ports:
       - "7860:7860"  # Gradio app port
+      - "8080:8080"  # fastapi app port
     volumes:
       - .:/app 
     networks:

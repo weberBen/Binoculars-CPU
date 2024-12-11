@@ -107,11 +107,42 @@ class Binoculars(object):
                 "Most likely human-generated"
             ).tolist()
 
-    def predict(self, input_text: Union[list[str], str], return_score: bool = False):
-        binoculars_scores = np.array(self.compute_score(input_text))
-        pred = self.score_to_label(binoculars_scores)
+    def score_to_class(self, binoculars_scores):
+        '''
+        class 0 : Ai generated
+        class 1 : Human generated
+        '''
+        
+        return np.where(binoculars_scores < self.threshold,
+                0,
+                1
+            ).tolist()
 
-        if return_score:
-            return (pred, binoculars_scores)
-        else:
-            return pred
+    def predict(self, input_text: Union[list[str], str], return_fields: list[str] = None):
+        '''
+        Predict result AI/Human input text generated
+        Return additional field in the order of the field name in `return_fields`
+        '''
+
+        if return_fields is None:
+            return_fields = ["label"]
+        
+        output = []
+        binoculars_scores = np.array(self.compute_score(input_text))
+        
+        for field in return_fields:
+            if field == "label":
+                item = self.score_to_label(binoculars_scores)
+            elif field == "score":
+                item = binoculars_scores
+            elif field == "class":
+                item = self.score_to_class(binoculars_scores)
+            else:
+                raise Exception(f"Invalid field type '{field}'")
+
+            output.append(item)
+        
+        if len(output) == 1:
+            return output[0]
+        
+        return output

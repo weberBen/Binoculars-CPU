@@ -14,11 +14,13 @@ peered through telescopes with his large, round eyes, fellow researchers often r
 stars themselves whispered their secrets directly to him. Dr. Cosmos not only became a beacon of inspiration to 
 aspiring scientists but also proved that intellect and innovation can be found in the most unexpected of creatures.'''
 
+print(f"[{time.time()}]", "Processing text...")
+
 start_time = time.time()  # Start the timer
-pred, score = bino.predict(sample_string, return_score=True)
+pred_class, pred_label, score = bino.predict(sample_string, return_fields=["class", "label", "score"])
 elapsed_time = time.time() - start_time
 
 print(f"Score: {score}")  # 0.8846334218978882
-print(f"Prediction: {pred}")  # 'AI-Generated'
+print(f"Prediction: {pred_label} | Class: {pred_class}")  # 'AI-Generated'
 print(f"Time elapsed : {elapsed_time} seconds")
 print(f"Token count: {len(bino.tokenizer(sample_string).input_ids)}")

@@ -8,6 +8,10 @@ See the online demo : [here](https://huggingface.co/spaces/ben-weber/Binoculars-
 
 ---
 
+The app allow you to run Binoculars with either raw text or pdf, via GUI (`Gradio`) or API (`FastAPI`).
+
+Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_CHAR`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
+
 ## **Performance**
 
 - **Accuracy**: On the `datasets` benchmark, we achieve **85% accuracy** with `SmolLM2-135M`.
@@ -32,17 +36,32 @@ See the online demo : [here](https://huggingface.co/spaces/ben-weber/Binoculars-
 
    ![Demo Interface](assets/gradio-interface.png)
 
-   - The app allows you to **load/unload the model** dynamically. This is useful when running on GPUs, as it avoids creating multiple GPU instances requiring more VRAM.
+  The app allows you to **load/unload the model** dynamically. This is useful when running on GPUs, as it avoids creating multiple GPU instances requiring more VRAM.
 
-3. **Run Binoculars Directly**:
+1. **Run Binoculars Directly**:
    ```bash
    docker compose exec binoculars bash -c "python3.10 main.py"
    ```
 
-   - You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
+  You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
+  
+1. **Run Binoculars via API**:
 
-4. **Important Note**:
-   Always use `python3.10` for running Binoculars-related scripts (e.g., `main.py`) on Ubuntu 22.04. Avoid using the default `python` binary.
+You should offload the model from Gradio app that is started with the container or replace in the docker-compose file the `command` with `sleep infinity`.
+
+Then run :
+
+```bash
+docker compose exec binoculars bash -c "python3.10 run.py"
+```
+
+It will start `FastAPI` on `127.0.0.1:8080`.
+
+You can test it with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
+
+
+1. **Important Note**:
+   Always use `python3.10` for running Binoculars-related scripts (e.g., `python3.10 main.py`, `python3.10 -m pip install`) on Ubuntu 22.04. Avoid using the default `python` binary.
 
 ### **Hugging Face Deployment**
 
