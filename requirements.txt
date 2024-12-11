@@ -3,3 +3,4 @@ transformers[torch] @ https://github.com/huggingface/transformers/archive/refs/t
 numpy
 gradio
 gradio_client
+pypdf2
