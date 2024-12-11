@@ -109,7 +109,7 @@ with gr.Blocks(css=css,
         input_box = gr.Textbox(value=capybara_problem, placeholder="Enter text here", lines=8, label="Input Text")
         pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"], file_count="single")
     with gr.Row():
-        threshold_box = gr.Textbox(value="", placeholder="Enter threshold here", lines=1, label="Threshold")
+        threshold_box = gr.Textbox(value="", placeholder="Enter threshold here", lines=1, label="Detection threshold")
         change_threshold_button = gr.Button("Change threshold")
     with gr.Row():
         submit_button = gr.Button("Run", variant="primary")
