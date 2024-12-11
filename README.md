@@ -8,7 +8,7 @@ See the online demo : [here](https://huggingface.co/spaces/ben-weber/Binoculars-
 
 ---
 
-The app allow you to run Binoculars with either raw text or pdf, via GUI (`Gradio`) or API (`FastAPI`).
+The app allow you to run Binoculars with either **raw text** or **pdf**, via **GUI** (`Gradio`) or **API** (`FastAPI`).
 
 Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_CHAR`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
 
