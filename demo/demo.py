@@ -6,11 +6,13 @@ from binoculars import Binoculars
 import gc
 import torch
 import time
+import os
 from PyPDF2 import PdfReader
 from demo.utils import run_bino, bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MINIMUM_TOKENS
 
 BINO = None
 TOKENIZER = None
+IS_DEV = os.getenv("ENVIRONMENT", "production").lower() == "development"
 
 def load_model():
     global BINO, TOKENIZER
@@ -39,10 +41,7 @@ def count_tokens(text):
     return bino_count_tokens(TOKENIZER, text)
 
 
-
-
 load_model()
-
 
 @spaces.GPU
 def handle_submit_text(input_text, pdf_file):
@@ -116,8 +115,9 @@ with gr.Blocks(css=css,
         submit_button = gr.Button("Run", variant="primary")
         clear_button = gr.ClearButton()
     with gr.Row():
-        load_button = gr.Button("Load Model")
-        unload_button = gr.Button("Unload Model")
+        if IS_DEV:
+            load_button = gr.Button("Load Model")
+            unload_button = gr.Button("Unload Model")
     with gr.Row():
         output_score = gr.Textbox(label="Score", value="")
         output_label = gr.Textbox(label="Label", value="")
@@ -132,8 +132,11 @@ with gr.Blocks(css=css,
                        outputs=[input_box, output_text, output_score, output_label, output_time, output_token_count,
                                 output_content_length, output_chunk_count, pdf_input]
                     )
-    load_button.click(load_model, outputs=output_text)
-    unload_button.click(unload_model, outputs=output_text)
+    
+    if IS_DEV:
+        load_button.click(load_model, outputs=output_text)
+        unload_button.click(unload_model, outputs=output_text)
+    
     change_threshold_button.click(set_threshold, inputs=threshold_box, outputs=threshold_box)
 
     submit_button.click(
