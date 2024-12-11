@@ -45,8 +45,10 @@ See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of 
 ### **Hugging Face Deployment**
 
 1. Clone this repository to your HuggingFace Space.
-2. Rebuild the app within HuggingFace.
-3. The application will run on the `CPU Basic` free hardware tier.
+2. Rename this `README.md` to `README-doc.md`
+3. Rename `README-HuggingFace-Space.md` to `README.md`
+4. Rebuild the app within HuggingFace.
+5. The application will run on the `CPU Basic` free hardware tier.
 
 ---
 
