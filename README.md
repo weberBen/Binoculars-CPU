@@ -35,10 +35,11 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
 
 2. **Access the Gradio App**:
    - To access the GUI interface, navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
-   - To access the API, make request to `127.0.0.1:8080`.
-     - Default api key is `my_api_key_1`
-     - See the API doc at `/docs`
+   - To access the API, make request to `/api/v1`.
+     - Default api key is `my_api_key_1`.
+     - See the API doc at `/docs`.
      - You can test the api with `client.py` which allow you to run Binoculars either on raw text or with a pdf through API.
+     - Since FastAPI does not handle long running task like the one model prediction does, you can set the env variable `FASTAPI_NO_LONG_RUNNING_TASK` to `true` in order to return dummy results instead of the actual process being running. This allow to continue running the Gardio app which can handle long running task without freezing the API. (The variable is set to true for demo in HuggingFace).
 
    *API Usage example*:
 
