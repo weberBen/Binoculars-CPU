@@ -2,46 +2,13 @@ __all__ = ["app"]
 
 import gradio as gr
 import spaces
-from binoculars import Binoculars
-import gc
-import torch
-import time
-import os
-from PyPDF2 import PdfReader
-from demo.utils import run_bino, bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MINIMUM_TOKENS
-
-BINO = None
-TOKENIZER = None
-IS_DEV = os.getenv("ENVIRONMENT", "production").lower() == "development"
-
-def load_model():
-    global BINO, TOKENIZER
-    if BINO is None:
-        BINO = Binoculars()
-        TOKENIZER = BINO.tokenizer
-        return "Model loaded onto GPU."
-    return "Model already loaded."
-
-def unload_model():
-    global BINO, TOKENIZER
-    if BINO is not None:
-        del BINO
-        gc.collect()
-        torch.cuda.empty_cache()
-
-        BINO = None
-        TOKENIZER = None
-        return "Model unloaded from GPU."
-    return "Model already unloaded."
-
+from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MAX_FILE_SIZE
+from interfaces.bino_singleton import BINO, TOKENIZER
 
 def count_tokens(text):
     if TOKENIZER is None:
         raise ValueError("Model is not loaded. Please load the model first.")
     return bino_count_tokens(TOKENIZER, text)
-
-
-load_model()
 
 @spaces.GPU
 def handle_submit_text(input_text, pdf_file):
@@ -85,26 +52,41 @@ css = """
   text-decoration: none;
   color: #000; /* Set the desired text color */
 }
+
+/* Needed because mount_gradio_app version 4.x does not support show_api attributes */
+footer > button:first-of-type {
+    display: none !important;
+}
 """
 
 capybara_problem = '''Dr. Capy Cosmos, a capybara unlike any other, astounded the scientific community with his groundbreaking research in astrophysics. With his keen sense of observation and unparalleled ability to interpret cosmic data, he uncovered new insights into the mysteries of black holes and the origins of the universe. As he peered through telescopes with his large, round eyes, fellow researchers often remarked that it seemed as if the stars themselves whispered their secrets directly to him. Dr. Cosmos not only became a beacon of inspiration to aspiring scientists but also proved that intellect and innovation can be found in the most unexpected of creatures.'''
 
 with gr.Blocks(css=css,
                theme=gr.themes.Default(font=[gr.themes.GoogleFont("Inconsolata"), "Arial", "sans-serif"])
-               ) as app:
+               ) as gradio_app:
 
     with gr.Row():
         with gr.Column(scale=3):
-            gr.HTML("<p><h1> Binoculars (zero-shot llm-text detector) with CPU inference</h1>")
+                with gr.Row():
+                    gr.HTML("<h1> Binoculars (zero-shot llm-text detector) with CPU inference</h1>")
+                with gr.Row():
+                    gr.HTML("""<h3> Keep in mind that the same model is shared across all requests (GUI/API).
+                                    Your request are queued and process later. Consequently waiting time does not reflect the actual
+                                    processing time, which elapsed time parameter return for every request is
+                                </h3>
+                            """)
         with gr.Column(scale=1):
-            gr.HTML("""
-            <p>
-            <a href="https://github.com/weberBen/Binoculars-cpu" target="_blank">Code</a>
-                    
-            <a href="https://arxiv.org/abs/2401.12070" target="_blank">Original paper</a>
-                
-            <a href="https://github.com/AHans30/Binoculars" target="_blank">Original code</a>
-            """, elem_classes="hyperlinks")
+                gr.HTML("""
+                    <p>
+                        <a href="https://github.com/weberBen/Binoculars-cpu" target="_blank">Code</a>
+                                
+                        <a href="https://arxiv.org/abs/2401.12070" target="_blank">Original paper</a>
+                            
+                        <a href="https://github.com/AHans30/Binoculars" target="_blank">Original code</a>
+                    </p>
+                    """,elem_classes="hyperlinks"
+                )
+    
     with gr.Row():
         input_box = gr.Textbox(value=capybara_problem, placeholder="Enter text here", lines=8, label="Input Text")
         pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"], file_count="single")
@@ -115,10 +97,6 @@ with gr.Blocks(css=css,
         submit_button = gr.Button("Run", variant="primary")
         clear_button = gr.ClearButton()
     with gr.Row():
-        if IS_DEV:
-            load_button = gr.Button("Load Model")
-            unload_button = gr.Button("Unload Model")
-    with gr.Row():
         output_score = gr.Textbox(label="Score", value="")
         output_label = gr.Textbox(label="Label", value="")
         output_token_count = gr.Textbox(label="Token count", value="")
@@ -128,14 +106,14 @@ with gr.Blocks(css=css,
     with gr.Row():
         output_text = gr.Textbox(label="Info", value="")
     
+    with gr.Row():
+        gr.HTML("""<p><h2> See <a href="/docs" target="_blank">API doc</a> 🚀 </h2></p>""")
+
+
     clear_button.click(lambda: ("", "", "", "", "", "", "", "", None),
                        outputs=[input_box, output_text, output_score, output_label, output_time, output_token_count,
                                 output_content_length, output_chunk_count, pdf_input]
                     )
-    
-    if IS_DEV:
-        load_button.click(load_model, outputs=output_text)
-        unload_button.click(unload_model, outputs=output_text)
     
     change_threshold_button.click(set_threshold, inputs=threshold_box, outputs=threshold_box)
 
@@ -144,3 +122,11 @@ with gr.Blocks(css=css,
         inputs=[input_box, pdf_input],
         outputs=[input_box, output_score, output_label, output_time, output_token_count, output_content_length, output_chunk_count, pdf_input]
     )
+
+def run_gradio(show_api=False, debug=True, share=False):
+    # IMPORTANT : show_api layout is override in css
+    gradio_app.launch(show_api=show_api, debug=debug, share=share, max_file_size=MAX_FILE_SIZE)
+
+if __name__ == "__main__":
+    # Launch the Gradio interface
+    run_gradio()

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   binoculars:
     build:
@@ -19,6 +17,9 @@ services:
       - GRADIO_SERVER_PORT=7860
       - ENVIRONMENT=development
       - BINOCULARS_FORCE_TO_CPU=false
+      - AUTHORIZED_API_KEYS=my_api_key_1|my_api_key_2
+      - SECRET_KEY=development
+      - FASTAPI_NO_LONG_RUNNING_TASK=false
 
 networks:
   net:

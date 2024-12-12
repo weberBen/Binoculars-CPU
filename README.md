@@ -34,51 +34,40 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
    ```
 
 2. **Access the Gradio App**:
-   Navigate to `http://127.0.0.1:7860` in your web browser to access the app (`app.py`).
+   - To access the GUI interface, navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
+   - To access the API, make request to `127.0.0.1:8080`.
+     - Default api key is `my_api_key_1`
+     - See the API doc at `/docs`
+     - You can test the api with `client.py` which allow you to run Binoculars either on raw text or with a pdf through API.
 
-  The app allows you to **load/unload the model** dynamically. This is useful when running on GPUs, as it avoids creating multiple GPU instances requiring more VRAM.
+   *API Usage example*:
 
-1. **Run Binoculars Directly**:
+   ```bash
+   /predict [POST]
+   {
+      "content": "my text"
+   }
+
+   >> {
+      "score": 0.8846334218978882,
+      "class": 0,
+      "label": "Most likely AI-generated",
+      "total_elapsed_time": 23.35552716255188,
+      "total_token_count": 134,
+      "content_length": 661,
+      "chunk_count": 1
+   }
+   ```
+   - Keep in mind that the same instance of Binoculars is being used by all requests (GUI/API). In fact instantiating 2 instances of Binoculars will requires 2x more VRAM or CPU usage/Memory.
+
+3. **Run Binoculars Directly**:
    ```bash
    docker compose exec binoculars bash -c "python3.10 main.py"
    ```
 
   You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
-  
-4. **Run Binoculars via API**:
 
-You should offload the model from Gradio app that is started with the container or replace in the docker-compose file the `command` with `sleep infinity`.
-
-Then run :
-
-```bash
-docker compose exec binoculars bash -c "python3.10 run.py"
-```
-
-It will start `FastAPI` on `127.0.0.1:8080`.
-
-You can test it with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
-
-*Usage example*:
-
-```json
-/predict [POST]
-{
-   "content": "my text"
-}
-
->> {
-   "score": 0.8846334218978882,
-   "class": 0,
-   "label": "Most likely AI-generated",
-   "total_elapsed_time": 23.35552716255188,
-   "total_token_count": 134,
-   "content_length": 661,
-   "chunk_count": 1
-}
-```
-
-5. **Important Note**:
+4. **Important Note**:
    Always use `python3.10` for running Binoculars-related scripts (e.g., `python3.10 main.py`, `python3.10 -m pip install`) on Ubuntu 22.04. Avoid using the default `python` binary.
 
 ### **Hugging Face Deployment**
@@ -115,6 +104,3 @@ To change the models:
   ```
   This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
 
-- **Performance Optimization**:
-  - Ensure the `BINOCULARS_FORCE_TO_CPU` environment variable is set for CPU-based usage.
-  - If running on GPUs, you can unload the Gradio model temporarily to free up VRAM.
