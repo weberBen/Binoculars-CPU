@@ -12,7 +12,7 @@ APP_URL = "app"
 @fastapi_app.get("/")
 async def root(request: Request, accept: str = Header(default=None)):
     # Get the base URL from the request object
-    base_url = str(request.base_url).rstrip('/')  # Removes trailing slash if present
+    base_url = str(request.base_url).rstrip('/').replace("http://", "https://")
 
     # Redirct text/html request to the current app url in HuggingFace cause requests
     # to be blocked. Thus display information JSON as route to manually redirect user
