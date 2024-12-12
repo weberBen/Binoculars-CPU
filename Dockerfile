@@ -3,6 +3,18 @@ FROM python:3.10.4-slim
 
 ENV PORT=7860
 
+# For HuggingFace Dev Mode
+RUN apt-get update && apt-get install -y \
+ build-essential \
+ wget \
+ git \
+ wget \
+ curl \
+ procps \
+ lsof \
+ nano \
+ && apt-get clean
+
 # HuggingFace
 RUN useradd -m -u 1000 user
 USER user

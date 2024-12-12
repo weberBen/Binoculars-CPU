@@ -62,7 +62,7 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
 
 3. **Run Binoculars Directly**:
    ```bash
-   docker compose exec binoculars bash -c "python3.10 main.py"
+   docker compose exec binoculars bash -c "python main.py"
    ```
 
   You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
@@ -78,6 +78,14 @@ Or you can manually create a new space :
 3. Rename `README-HuggingFace-Space.md` to `README.md`
 4. Rebuild the app within HuggingFace.
 5. The application will run on the `CPU Basic` free hardware tier.
+
+If you want to run the application on a private HuggingFace space you can enable the dev mode and make a ssh port forwarding :
+
+```bash
+ssh -L 7860:127.0.0.1:7860 username@ssh.hf.space
+```
+
+And then go to `127.0.0.1:7860`.
 
 ---
 
@@ -105,3 +113,4 @@ To change the models:
   ```
   This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
 
+- When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space**.
