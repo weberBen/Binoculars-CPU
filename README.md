@@ -1,14 +1,14 @@
-# **CPU Inference of Binoculars (Zero-Shot Detection of LLM-Generated Text)** [[demo]](https://huggingface.co/spaces/ben-weber/Binoculars-CPU)
+# **CPU Inference of Binoculars (Zero-Shot Detection of LLM-Generated Text)** [[demo]](https://ben-weber-binoculars-cpu.hf.space/app)
 
 This project adapts the [Binoculars](https://github.com/ahans30/Binoculars) code, which it heavily rely on, to run efficiently on CPUs by leveraging smaller language models for both the observer and reference models. Specifically, it uses the [`SmolLM2-135M`](https://huggingface.co/HuggingFaceTB/SmolLM2-135M) language model.
 
-See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
-
-See the online demo : [here](https://ben-weber-binoculars-cpu.hf.space/app).
-
----
+See the online demo : [here 🚀](https://ben-weber-binoculars-cpu.hf.space/app).
 
 ![Demo Interface](assets/gradio-interface.png)
+
+See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
+
+---
 
 The app allow you to run Binoculars with either **raw text** or **pdf**, via **GUI** (`Gradio`) or **API** (`FastAPI`).
 
