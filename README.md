@@ -6,13 +6,15 @@ See the online demo : [here 🚀](https://ben-weber-binoculars-cpu.hf.space/app)
 
 ![Demo Interface](assets/gradio-interface.png)
 
-See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
+![Demo API](assets/api_docs_interface.png)
 
 ---
 
 The app allow you to run Binoculars with either **raw text** or **pdf**, via **GUI** (`Gradio`) or **API** (`FastAPI`).
 
-Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_CHAR`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
+See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
+
+---
 
 ## **Performance**
 
@@ -33,8 +35,9 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
    docker compose up
    ```
 
-2. **Access the Gradio App**:
-   - To access the GUI interface, navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
+2. **Access the app**:
+   - Navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
+   - See the GUI interface at `/app`
    - See the API doc at `/docs`.
      - Default api key is `my_api_key_1`.
      - You can test the api with `client.py` which allow you to run Binoculars either on raw text or with a pdf through API.
@@ -58,7 +61,7 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
       "chunk_count": 1
    }
    ```
-   - Keep in mind that the same instance of Binoculars is being used by all requests (GUI/API). In fact instantiating 2 instances of Binoculars will requires 2x more VRAM or CPU usage/Memory.
+   - Keep in mind that the same instance of Binoculars is being used by all requests (GUI/API) defined in `interface/bino_singleton.py`. In fact instantiating 2 instances of Binoculars will requires 2x more VRAM or CPU usage/Memory.
 
 3. **Run Binoculars Directly**:
    ```bash
@@ -112,5 +115,5 @@ To change the models:
   Some weights of LlamaForCausalLM were not initialized from the model checkpoint at HuggingFaceTB/SmolLM2-135M and are newly initialized.
   ```
   This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
-
 - When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space**.
+- Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_CHAR`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
