@@ -34,7 +34,7 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
    ```
 
 2. **Access the Gradio App**:
-   - To access the GUI interface, navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
+   - To access the GUI interface, navigate to `http://127.0.0.1:8080` in your web browser to access the app (define in `app.py`).
    - To access the API, make request to `/api/v1`.
      - Default api key is `my_api_key_1`.
      - See the API doc at `/docs`.

@@ -3,6 +3,7 @@ from fastapi import Header, Request
 import gradio as gr
 import uvicorn
 from fastapi.responses import RedirectResponse
+import os
 
 from interfaces.utils import MAX_FILE_SIZE
 from interfaces.gradio_app import gradio_app
@@ -32,5 +33,8 @@ app = gr.mount_gradio_app(fastapi_app, gradio_app, path=f"/{APP_URL}", max_file_
 
 # Run the app
 if __name__ == "__main__":
-    run_fastapi(port=7860)
+    host = os.getenv("SERVER_HOST", "0.0.0.0")
+    port = float(os.getenv("SERVER_PORT", "7860"))
+    
+    run_fastapi(host=host, port=port)
     
