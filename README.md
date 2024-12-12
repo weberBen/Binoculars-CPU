@@ -40,7 +40,7 @@ See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of 
    - See the GUI interface at `/app`
    - See the API doc at `/docs`.
      - Default api key is `my_api_key_1`.
-     - You can test the api with `client.py` which allow you to run Binoculars either on raw text or with a pdf through API.
+     - You can test the API with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
   
 
    *API Usage example*:
