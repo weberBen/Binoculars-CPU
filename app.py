@@ -34,7 +34,7 @@ app = gr.mount_gradio_app(fastapi_app, gradio_app, path=f"/{APP_URL}", max_file_
 # Run the app
 if __name__ == "__main__":
     host = os.getenv("SERVER_HOST", "0.0.0.0")
-    port = float(os.getenv("SERVER_PORT", "7860"))
+    port = float(os.getenv("SERVER_PORT", "8080"))
     
     run_fastapi(host=host, port=port)
     
