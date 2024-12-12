@@ -19,11 +19,15 @@ from interfaces.fastapi_utils import Token, api_key_header, AUTHORIZED_API_KEYS,
 BASE_API_URL = "/api/v1"
 
 fastapi_app = FastAPI(
-    name="Binoculars (zero-shot llm-text detector) with CPU inference",
+    title="Binoculars (zero-shot llm-text detector) with CPU inference",
     description="""Keep in mind that the same model is shared across all requests (GUI/API).
     Your request are queued and process later. Consequently waiting time does not reflect the actual
     processing time, which elapsed time parameter return for every request is.
-    """
+    """,
+    contact={
+        "name": "Github",
+        "url": "https://github.com/weberBen/Binoculars-cpu"
+    }
 )
 
 fastapi_app.add_middleware(

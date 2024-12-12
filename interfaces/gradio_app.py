@@ -29,13 +29,19 @@ def set_threshold(threshold):
     if BINO is None:
         gr.Error("Model is not loaded. Please load the model first.")
         return threshold
-    try:
-        threshold = float(threshold)
-        BINO.set_threshold(threshold)
-    except ValueError:
-        BINO.set_threshold()
-        gr.Error("Invalid threshold value. Please enter a numeric value.")
     
+    if threshold is None:
+        BINO.set_threshold()
+    else:
+        try:
+            threshold = float(threshold)
+            BINO.set_threshold(threshold)
+        except ValueError:
+            BINO.set_threshold()
+            gr.Error("Invalid threshold value. Please enter a numeric value.")
+    
+    gr.Info("New threshold applied. Re-run detector")
+
     return f"{BINO.get_threshold()}"
 
 
@@ -93,8 +99,9 @@ with gr.Blocks(css=css,
         input_box = gr.Textbox(value=capybara_problem, placeholder="Enter text here", lines=8, label="Input Text")
         pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"], file_count="single")
     with gr.Row():
-        threshold_box = gr.Textbox(value="", placeholder="Enter threshold here", lines=1, label="Detection threshold")
+        threshold_box = gr.Textbox(value=f"{BINO.get_threshold()}", placeholder="Enter threshold here", lines=1, label="Detection threshold")
         change_threshold_button = gr.Button("Change threshold")
+        reset_threshold_button = gr.Button("Reset threshold")
     with gr.Row():
         submit_button = gr.Button("Run", variant="primary")
         clear_button = gr.ClearButton()
@@ -105,24 +112,26 @@ with gr.Blocks(css=css,
         output_content_length = gr.Textbox(label="Content length (char)", value="")
         output_chunk_count = gr.Textbox(label="Chunk count", value="")
         output_time = gr.Textbox(label="Time elapsed", value="")
-    with gr.Row():
-        output_text = gr.Textbox(label="Info", value="")
-    
+
     with gr.Row():
         gr.HTML("""<p><h2> See <a href="/docs" target="_blank">API doc</a> 🚀 </h2></p>""")
 
 
-    clear_button.click(lambda: ("", "", "", "", "", "", "", "", None),
-                       outputs=[input_box, output_text, output_score, output_label, output_time, output_token_count,
+    clear_button.click(lambda: ("", "", "", "", "", "", "", None),
+                       outputs=[input_box, output_score, output_label, output_time, output_token_count,
                                 output_content_length, output_chunk_count, pdf_input]
                     )
     
     change_threshold_button.click(set_threshold, inputs=threshold_box, outputs=threshold_box)
+    reset_threshold_button.click(set_threshold, inputs=None, outputs=threshold_box)
 
     submit_button.click(
-        lambda input_text, pdf_file: (*handle_submit_text(input_text, pdf_file), None),
+        lambda input_text, pdf_file: (*handle_submit_text(input_text, pdf_file), None, BINO.get_threshold()),
         inputs=[input_box, pdf_input],
-        outputs=[input_box, output_score, output_label, output_time, output_token_count, output_content_length, output_chunk_count, pdf_input]
+        outputs=[input_box, output_score, output_label, output_time,
+                 output_token_count, output_content_length, output_chunk_count,
+                 pdf_input, threshold_box
+                ]
     )
 
 def run_gradio(show_api=False, debug=True, share=False):
