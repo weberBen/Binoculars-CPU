@@ -12,8 +12,6 @@ assert(len(SECRET_KEY.strip()) > 0), "Invalid secret api key"
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-FASTAPI_NO_LONG_RUNNING_TASK = os.getenv("FASTAPI_NO_LONG_RUNNING_TASK", "").lower() in ['yes', 'true', '1']
-NO_LONG_RUNNING_TASK_MESSAGE="Demo mode activate, no long running request allowed on API, try on GUI"
 
 def parse_authorized_keys():
     keys = os.getenv("AUTHORIZED_API_KEYS", "").split("|")

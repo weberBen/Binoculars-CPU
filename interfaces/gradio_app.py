@@ -78,7 +78,9 @@ with gr.Blocks(css=css,
         with gr.Column(scale=1):
                 gr.HTML("""
                     <p>
-                        <a href="https://github.com/weberBen/Binoculars-cpu" target="_blank">Code</a>
+                        <a href="https://huggingface.co/spaces/ben-weber/Binoculars-CPU" target="_blank">HuggingFace space 🤗</a>
+
+                        <a href="https://github.com/weberBen/Binoculars-cpu" target="_blank">Github 🐙</a>
                                 
                         <a href="https://arxiv.org/abs/2401.12070" target="_blank">Original paper</a>
                             

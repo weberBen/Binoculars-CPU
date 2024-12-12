@@ -4,7 +4,7 @@ This project adapts the [Binoculars](https://github.com/ahans30/Binoculars) code
 
 See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
 
-See the online demo : [here](https://huggingface.co/spaces/ben-weber/Binoculars-CPU).
+See the online demo : [here](https://ben-weber-binoculars-cpu.hf.space/app).
 
 ---
 
@@ -34,17 +34,16 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
    ```
 
 2. **Access the Gradio App**:
-   - To access the GUI interface, navigate to `http://127.0.0.1:8080` in your web browser to access the app (define in `app.py`).
-   - To access the API, make request to `/api/v1`.
+   - To access the GUI interface, navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
+   - See the API doc at `/docs`.
      - Default api key is `my_api_key_1`.
-     - See the API doc at `/docs`.
      - You can test the api with `client.py` which allow you to run Binoculars either on raw text or with a pdf through API.
-     - Since FastAPI does not handle long running task like the one model prediction does, you can set the env variable `FASTAPI_NO_LONG_RUNNING_TASK` to `true` in order to return dummy results instead of the actual process being running. This allow to continue running the Gardio app which can handle long running task without freezing the API. (The variable is set to true for demo in HuggingFace).
+  
 
    *API Usage example*:
 
    ```bash
-   /predict [POST]
+   /predict/ [POST]
    {
       "content": "my text"
    }
@@ -68,10 +67,11 @@ Each content is split into multiple chunks (defined by the variable `TEXT_SPLIT_
 
   You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
 
-4. **Important Note**:
-   Always use `python3.10` for running Binoculars-related scripts (e.g., `python3.10 main.py`, `python3.10 -m pip install`) on Ubuntu 22.04. Avoid using the default `python` binary.
-
 ### **Hugging Face Deployment**
+
+You can directly clone the HuggingFace Space [here](https://huggingface.co/spaces/ben-weber/Binoculars-CPU).
+
+Or you can manually create a new space :
 
 1. Clone this repository to your HuggingFace Space.
 2. Rename this `README.md` to `README-doc.md`

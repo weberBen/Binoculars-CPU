@@ -10,13 +10,13 @@ import uvicorn
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import os
+from starlette.concurrency import run_in_threadpool
 
 from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MINIMUM_TOKENS, MAX_FILE_SIZE
 from interfaces.bino_singleton import BINO, TOKENIZER
-from interfaces.fastapi_utils import Token, api_key_header, AUTHORIZED_API_KEYS, create_access_token, validate_token, FASTAPI_NO_LONG_RUNNING_TASK, NO_LONG_RUNNING_TASK_MESSAGE
+from interfaces.fastapi_utils import Token, api_key_header, AUTHORIZED_API_KEYS, create_access_token, validate_token
 
 BASE_API_URL = "/api/v1"
-
 
 fastapi_app = FastAPI(
     name="Binoculars (zero-shot llm-text detector) with CPU inference",
@@ -58,6 +58,7 @@ async def get_token(api_key: str = Security(api_key_header)):
 
 
 # Route for prediction
+@fastapi_app.post(f"{BASE_API_URL}/predict", include_in_schema=False) # Redirect route without trailing slash
 @fastapi_app.post(
     f"{BASE_API_URL}/predict/",
     summary="AI/Human Content Detection",
@@ -76,18 +77,6 @@ async def process_content(
 ):
   
     global BINO, TOKENIZER
-
-    if FASTAPI_NO_LONG_RUNNING_TASK:
-        return {
-            "message": NO_LONG_RUNNING_TASK_MESSAGE,
-            "score": 0.8846334218978882,
-            "class": 0,
-            "label": "Most likely AI-generated",
-            "total_elapsed_time": 23.35552716255188,
-            "total_token_count": 134,
-            "content_length": 661,
-            "chunk_count": 1,
-        }
 
     if not content and not file:
         raise HTTPException(status_code=400, detail="Either text or file must be provided.")
@@ -112,7 +101,8 @@ async def process_content(
     if bino_count_tokens(TOKENIZER, content) < MINIMUM_TOKENS:
         raise HTTPException(status_code=400, detail=f"Too short length. Need minimum {MINIMUM_TOKENS} tokens to run.")
     
-    content, score, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = bino_predict(BINO, content)
+    # long running task
+    content, score, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = await run_in_threadpool(bino_predict, BINO, content)
 
     return {
         "score": score,

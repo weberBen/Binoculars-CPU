@@ -1,8 +1,18 @@
-sentencepiece
 transformers[torch] @ https://github.com/huggingface/transformers/archive/refs/tags/v4.31.0.zip
-numpy
-gradio
-gradio_client
-pypdf2
-python-jose
-passlib
+sentencepiece==0.2.0
+numpy==2.2.0
+gradio==5.8.0
+gradio_client==1.5.1
+python-jose==3.3.0
+passlib==1.7.4
+torch==2.5.1
+datasets==3.2.0
+scikit-learn==1.6.0
+seaborn==0.13.2
+matplotlib==3.9.3
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+PyPDF2==3.0.1
+huggingface_hub==0.26.5
+spaces==0.31.1
+starlette==0.41.3

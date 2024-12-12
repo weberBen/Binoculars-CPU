@@ -1,55 +1,26 @@
-# Use Ubuntu 22.04 as the base image
-FROM ubuntu:22.04
+# Start with Python 3.10.4 base image
+FROM python:3.10.4-slim
 
-# Set environment variables to avoid interactive prompts during installation
-ENV DEBIAN_FRONTEND=noninteractive
+ENV PORT=7860
 
-# Install Python build dependencies, Rust, and system tools
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    build-essential \
-    wget \
-    libffi-dev \
-    libssl-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    libncurses5-dev \
-    libncursesw5-dev \
-    xz-utils \
-    tk-dev \
-    libxml2-dev \
-    libxmlsec1-dev \
-    liblzma-dev \
-    git \
-    curl \
-    && apt-get clean
+# HuggingFace
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+	PATH=/home/user/.local/bin:$PATH
 
-# Install Rust using rustup
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-    && export PATH="$HOME/.cargo/bin:$PATH" \
-    && rustc --version
+# Set up the working directory
+WORKDIR $HOME/app
 
-# Install Python 3.10.4 from source
-RUN add-apt-repository ppa:deadsnakes/ppa \
-    && apt-get update \
-    && apt-get install python3.10
+RUN pip install --no-cache-dir --upgrade pip
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-    && python3.10 -m pip install --upgrade pip setuptools wheel gradio
+# Copy your application files
+COPY --chown=user . $HOME/app
 
-RUN python3.10 -m pip install datasets scikit-learn seaborn matplotlib spaces fastapi uvicorn pypdf2 python-jose passlib
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# Set the working directory
-WORKDIR /app
-
-COPY . /app
-
-# Install the Binoculars package in editable mode
-RUN python3.10 -m pip install -e .
-
-# CMD ["python3.10", "app.py"]
-
-EXPOSE 7860
+# Expose ports for Gradio and FastAPI
+EXPOSE $PORT
 EXPOSE 8080
+
+CMD [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860" ]
