@@ -1,48 +1,34 @@
-import os
+from env_utils import cast_string, cast_int, cast_float, cast_list, cast_bool
+
+
+#%%
 
 HUGGINGFACE_CONFIG = {
-  "TOKEN": os.getenv("HF_TOKEN", None)
+  "TOKEN": cast_string("HF_TOKEN", default=None)
 }
 
-# get threshold from env var
-BINOCULARS_THRESHOLD =  os.getenv("BINOCULARS_THRESHOLD", "")
-BINOCULARS_THRESHOLD = float(BINOCULARS_THRESHOLD)
-assert(type(BINOCULARS_THRESHOLD) is float)
+BINOCULARS_THRESHOLD = cast_float("BINOCULARS_THRESHOLD")
 
-BINOCULARS_OBSERVER_MODEL_NAME = os.getenv("BINOCULARS_OBSERVER_MODEL_NAME", "").strip()
-assert(len(BINOCULARS_OBSERVER_MODEL_NAME) > 0)
+BINOCULARS_OBSERVER_MODEL_NAME = cast_string("BINOCULARS_OBSERVER_MODEL_NAME", require=True)
 
-BINOCULARS_PERFORMER_MODEL_NAME = os.getenv("BINOCULARS_PERFORMER_MODEL_NAME", "").strip()
-assert(len(BINOCULARS_PERFORMER_MODEL_NAME) > 0)
+BINOCULARS_PERFORMER_MODEL_NAME = cast_string("BINOCULARS_PERFORMER_MODEL_NAME", require=True)
 
-BINOCULARS_FORCE_TO_CPU = os.getenv("BINOCULARS_FORCE_TO_CPU", "False").lower() in ("true", "1", "yes")
+BINOCULARS_FORCE_TO_CPU = cast_bool("BINOCULARS_FORCE_TO_CPU", default="False")
 
-API_SECRET_KEY = os.getenv("API_SECRET_KEY", "")
-assert(len(API_SECRET_KEY.strip()) > 0), "Invalid secret api key"
+API_SECRET_KEY = cast_string("API_SECRET_KEY", require=True)
 
 API_ENCRYPT_ALGORITHM = "HS256"
-API_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("API_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
-def parse_authorized_keys():
-    keys = os.getenv("API_AUTHORIZED_API_KEYS", "").split("|")
-    keys = [x for x in keys if x.strip() != '']
+API_ACCESS_TOKEN_EXPIRE_MINUTES = cast_int("API_ACCESS_TOKEN_EXPIRE_MINUTES", default="60") 
 
-    return keys
+API_AUTHORIZED_API_KEYS = cast_list("API_AUTHORIZED_API_KEYS")
 
-API_AUTHORIZED_API_KEYS = parse_authorized_keys()
+MODEL_CHUNK_SIZE = cast_int("MODEL_CHUNK_SIZE", default="10000000")
 
-MODEL_CHUNK_SIZE = os.getenv("MODEL_CHUNK_SIZE", "10000")
-MODEL_CHUNK_SIZE = int(MODEL_CHUNK_SIZE)
-assert(type(MODEL_CHUNK_SIZE) is int)
+MODEL_BATCH_SIZE = cast_int("MODEL_BATCH_SIZE", default="1")
 
-MODEL_BATCH_SIZE = os.getenv("MODEL_BATCH_SIZE", "1")
-MODEL_BATCH_SIZE = int(MODEL_BATCH_SIZE)
-assert(type(MODEL_BATCH_SIZE) is int)
+MODEL_MINIMUM_TOKENS = cast_int("MODEL_MINIMUM_TOKENS", default="64")
 
-MODEL_MINIMUM_TOKENS = os.getenv("MODEL_MINIMUM_TOKENS", "64")
-MODEL_MINIMUM_TOKENS = int(MODEL_MINIMUM_TOKENS)
-assert(type(MODEL_MINIMUM_TOKENS) is int)
+MAX_FILE_SIZE_BYTES = cast_int("MAX_FILE_SIZE_BYTES", default="1000000")
 
-MAX_FILE_SIZE_BYTES=os.getenv("MAX_FILE_SIZE_BYTES", "1000000")
-MAX_FILE_SIZE_BYTES = int(MAX_FILE_SIZE_BYTES)
-assert(type(MAX_FILE_SIZE_BYTES) is int)
+FLATTEN_BATCH = cast_bool("FLATTEN_BATCH", default="true")

@@ -28,6 +28,7 @@ services:
       - MODEL_BATCH_SIZE=1
       - MODEL_MINIMUM_TOKENS=64
       - MAX_FILE_SIZE_BYTES=10000000
+      - FLATTEN_BATCH=true
 
 networks:
   net:

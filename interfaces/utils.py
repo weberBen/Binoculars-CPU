@@ -2,7 +2,7 @@
 import time
 import numpy as np
 from PyPDF2 import PdfReader
-from config import MODEL_CHUNK_SIZE, MODEL_BATCH_SIZE, MAX_FILE_SIZE_BYTES, MODEL_MINIMUM_TOKENS
+from config import MODEL_CHUNK_SIZE, MODEL_BATCH_SIZE, MAX_FILE_SIZE_BYTES, MODEL_MINIMUM_TOKENS, FLATTEN_BATCH
 from typing import List, Tuple, Union
 
 def count_tokens(tokenizer, text):
@@ -181,28 +181,53 @@ def bino_predict(bino, documents: Union[list[str], str], threshold=None):
             raise Exception(f"Too short length. Need minimum {MODEL_MINIMUM_TOKENS} tokens to run.")
 
     total_gpu_time = 0
-
-    chunks, document_chunk_indices, super_chunk_indices = text_to_chunks(documents)
-
     score_list = []
-    for (i, j) in super_chunk_indices:
-      batch = chunks[i:j]
-      np_score, threshold, pred_class, pred_label, gpu_time = run_bino(bino, batch, threshold=threshold)
-      total_gpu_time += gpu_time
-      score_list.extend(np_score.flatten().tolist())
-
     document_scores = []
     document_pred_classes = []
     document_pred_labels = []
-    for (i, j) in document_chunk_indices:
-        document_chunk_scores = np.array(score_list[i:j])
 
-        score = document_chunk_scores.mean()
+    if FLATTEN_BATCH:
+        # Flatten chunks across all documents to optimize performance
+        # May introduce score variation on individual sample because of batch operation
+        chunks, document_chunk_indices, super_chunk_indices = text_to_chunks(documents)
 
-        document_scores.append(score)
-        document_pred_classes.append(bino.score_to_class(score, threshold=threshold))
-        document_pred_labels.append(bino.score_to_label(score, threshold=threshold))
-    
-    document_chunks_count_list = [j-i for (i, j) in document_chunk_indices]
+        for (i, j) in super_chunk_indices:
+            batch = chunks[i:j]
+            np_score, threshold, pred_class, pred_label, gpu_time = run_bino(bino, batch, threshold=threshold)
+            total_gpu_time += gpu_time
+            score_list.extend(np_score.flatten().tolist())
+
+        for (i, j) in document_chunk_indices:
+            document_chunk_scores = np.array(score_list[i:j])
+
+            score = document_chunk_scores.mean()
+
+            document_scores.append(score)
+            document_pred_classes.append(bino.score_to_class(score, threshold=threshold))
+            document_pred_labels.append(bino.score_to_label(score, threshold=threshold))
+        
+        document_chunks_count_list = [j-i for (i, j) in document_chunk_indices]
+    else:
+        # Processing document one by one without chunks flatten across documents
+        # May reduce performance
+        document_chunks_count_list = []
+
+        for document in documents:
+            document_chunks = split_text(document)
+            batches = [document_chunks[i:i + MODEL_BATCH_SIZE] for i in range(0, len(document_chunks), MODEL_BATCH_SIZE)]
+
+            score_list = []
+            for batch in batches:
+                np_score, threshold, pred_class, pred_label, gpu_time = run_bino(bino, batch, threshold=threshold)
+                total_gpu_time += gpu_time
+                score_list.extend(np_score.flatten().tolist())
+            
+            score_list = np.array(score_list)
+            score = score_list.mean()
+
+            document_scores.append(score)
+            document_pred_classes.append(bino.score_to_class(score, threshold=threshold))
+            document_pred_labels.append(bino.score_to_label(score, threshold=threshold))
+            document_chunks_count_list.append(len(document_chunks))
 
     return documents, document_scores, threshold, document_pred_classes, document_pred_labels, total_gpu_time, total_token_count, document_length_list, document_chunks_count_list

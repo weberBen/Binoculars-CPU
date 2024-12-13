@@ -96,6 +96,7 @@ You need to change the following env variables:
 - `BINOCULARS_THRESHOLD` : Binoculars detection threshold between AI/Human content
 - `MAX_FILE_SIZE_BYTES` : maximum file size allowed
 - `MODEL_MINIMUM_TOKENS` : minimum allowed number of tokens per document. Short text show a low accuracy rate
+- `FLATTEN_BATCH` : allow document chunks to be flatten across all document for optimized batch processing. May introduce slightly score variation compare to individual processing. See usage notes section.
 
 
 See all the available variables in `config.py`.
@@ -133,4 +134,5 @@ Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-
   This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
 - When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space. But do not keep an active session open (where user can interact with or the focus tab of a browser)**.
 - For a document that exceeds the chunk limit, it will be cut into multiple chunks. The associated document score is the average of all chunk scores.
-
+- When using batch processing, sequences within a batch are padded to match the length of the longest sequence in order to create a rectangular tensor, which hardware is optimized to process. Consequently, you may observe slight numerical differences (on the order of 1e-3) in results when comparing batch processing to individual inference.
+- When running the same model on different hardware architectures, you may observe score differences (on the order of 1e-3) due to hardware-specific architectures and their implementations of floating-point arithmetic.

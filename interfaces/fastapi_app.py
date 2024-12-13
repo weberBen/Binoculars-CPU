@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 import os
 from starlette.concurrency import run_in_threadpool
 
-from config import MODEL_MINIMUM_TOKENS, MAX_FILE_SIZE_BYTES, API_AUTHORIZED_API_KEYS
+from config import MODEL_MINIMUM_TOKENS, MAX_FILE_SIZE_BYTES, API_AUTHORIZED_API_KEYS, FLATTEN_BATCH
 from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content
 from interfaces.bino_singleton import BINO, TOKENIZER
 from interfaces.fastapi_utils import Token, api_key_header, create_access_token, validate_token

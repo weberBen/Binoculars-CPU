@@ -10,7 +10,6 @@ from config import HUGGINGFACE_CONFIG, BINOCULARS_OBSERVER_MODEL_NAME, BINOCULAR
 from .utils import assert_tokenizer_consistency
 from .metrics import perplexity, entropy
 
-torch.set_grad_enabled(False)
 
 
 DEVICE_1 = "cuda:0" if torch.cuda.is_available() else "cpu"
