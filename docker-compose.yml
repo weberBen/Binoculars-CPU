@@ -24,7 +24,7 @@ services:
       - BINOCULARS_PERFORMER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M-Instruct
       - HF_HOME=/home/user/.cache/huggingface/hub
       - HF_TOKEN=
-      - MODEL_CHUNK_SIZE=200
+      - MODEL_CHUNK_SIZE=10000
       - MODEL_BATCH_SIZE=1
       - MODEL_MINIMUM_TOKENS=64
       - MAX_FILE_SIZE_BYTES=10000000
