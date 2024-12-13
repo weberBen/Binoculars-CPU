@@ -22,8 +22,9 @@ See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of 
 - **Accuracy**: On the `datasets` benchmark, we achieve **85% accuracy** with `SmolLM2-135M`.
 - **Throughput**:
   - **HuggingFace free CPU Basic (2 vCPU x 16GB RAM)**: ~170 tokens/second (5.9 seconds for 1,000 tokens).
-  - **Consumer-grade CPU (16GB RAM)**: ~10 tokens/second (1 minute 30 seconds for 1,000 tokens).
+  - **Consumer-grade CPU 4x2.60GHz (16GB RAM)**: ~10 tokens/second (1 minute 30 seconds for 1,000 tokens).
 
+In fact, this code does not requires 16GB of RAM but consumes around 3GB.
 ---
 
 ## **Installation**
