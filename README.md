@@ -83,6 +83,8 @@ Or you can manually create a new space :
 4. Rebuild the app within HuggingFace.
 5. The application will run on the `CPU Basic` free hardware tier.
 
+You can switch between hardware on HuggingFace to switch from CPU to GPU without impacting the inner working of this code.
+
 If you want to run the application on a private HuggingFace space you can enable the dev mode and make a ssh port forwarding :
 
 ```bash
