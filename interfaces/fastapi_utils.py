@@ -6,21 +6,7 @@ from fastapi.security.api_key import APIKeyHeader
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Union, Optional, List
-
-SECRET_KEY = os.getenv("SECRET_KEY", "")
-assert(len(SECRET_KEY.strip()) > 0), "Invalid secret api key"
-
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-
-def parse_authorized_keys():
-    keys = os.getenv("AUTHORIZED_API_KEYS", "").split("|")
-    keys = [x for x in keys if x.strip() != '']
-
-    return keys
-
-AUTHORIZED_API_KEYS = parse_authorized_keys()
-
+from config import API_SECRET_KEY, API_ENCRYPT_ALGORITHM, API_ACCESS_TOKEN_EXPIRE_MINUTES, API_AUTHORIZED_API_KEYS
 
 # Models
 class Token(BaseModel):
@@ -44,10 +30,10 @@ def create_access_token(api_key: str, expires_delta: Optional[timedelta] = None)
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=API_ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, API_SECRET_KEY, algorithm=API_ENCRYPT_ALGORITHM)
     
     return encoded_jwt
 
@@ -60,9 +46,9 @@ async def validate_token(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, API_SECRET_KEY, algorithms=[API_ENCRYPT_ALGORITHM])
         api_key: str = payload.get("key")
-        if api_key is None or (api_key not in AUTHORIZED_API_KEYS):
+        if api_key is None or (api_key not in API_AUTHORIZED_API_KEYS):
             raise credentials_exception
     except JWTError:
         raise credentials_exception

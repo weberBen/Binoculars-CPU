@@ -6,24 +6,12 @@ import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from config import huggingface_config
+from config import HUGGINGFACE_CONFIG, BINOCULARS_OBSERVER_MODEL_NAME, BINOCULARS_PERFORMER_MODEL_NAME, BINOCULARS_THRESHOLD, BINOCULARS_FORCE_TO_CPU
 from .utils import assert_tokenizer_consistency
 from .metrics import perplexity, entropy
 
 torch.set_grad_enabled(False)
 
-# get threshold from env var
-BINOCULARS_THRESHOLD =  os.getenv("BINOCULARS_THRESHOLD", "")
-BINOCULARS_THRESHOLD = float(BINOCULARS_THRESHOLD)
-assert(type(BINOCULARS_THRESHOLD) is float)
-
-BINOCULARS_OBSERVER_MODEL_NAME = os.getenv("BINOCULARS_OBSERVER_MODEL_NAME", "").strip()
-assert(len(BINOCULARS_OBSERVER_MODEL_NAME) > 0)
-
-BINOCULARS_PERFORMER_MODEL_NAME = os.getenv("BINOCULARS_PERFORMER_MODEL_NAME", "").strip()
-assert(len(BINOCULARS_PERFORMER_MODEL_NAME) > 0)
-
-BINOCULARS_FORCE_TO_CPU = os.getenv("BINOCULARS_FORCE_TO_CPU", "False").lower() in ("true", "1", "yes")
 
 DEVICE_1 = "cuda:0" if torch.cuda.is_available() else "cpu"
 DEVICE_2 = "cuda:1" if torch.cuda.device_count() > 1 else DEVICE_1
@@ -50,7 +38,7 @@ class Binoculars(object):
                                                                    trust_remote_code=True,
                                                                    torch_dtype=torch.bfloat16 if use_bfloat16
                                                                    else torch.float32,
-                                                                   token=huggingface_config["TOKEN"]
+                                                                   token=HUGGINGFACE_CONFIG["TOKEN"]
                                                                    )
         self.performer_model_name = performer_name_or_path
         self.performer_model = AutoModelForCausalLM.from_pretrained(performer_name_or_path,
@@ -58,7 +46,7 @@ class Binoculars(object):
                                                                     trust_remote_code=True,
                                                                     torch_dtype=torch.bfloat16 if use_bfloat16
                                                                     else torch.float32,
-                                                                    token=huggingface_config["TOKEN"]
+                                                                    token=HUGGINGFACE_CONFIG["TOKEN"]
                                                                     )
 
         self.observer_model.eval()

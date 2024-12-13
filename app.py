@@ -3,7 +3,7 @@ from fastapi import Header, Request
 import gradio as gr
 from fastapi.responses import RedirectResponse
 
-from interfaces.utils import MAX_FILE_SIZE
+from config import MAX_FILE_SIZE_BYTES
 from interfaces.gradio_app import gradio_app, run_gradio
 from interfaces.fastapi_app import fastapi_app, run_fastapi
 
@@ -28,6 +28,6 @@ async def root(request: Request, accept: str = Header(default=None)):
     }
 
 
-app = gr.mount_gradio_app(fastapi_app, gradio_app, path=f"/{APP_URL}", max_file_size=MAX_FILE_SIZE)
+app = gr.mount_gradio_app(fastapi_app, gradio_app, path=f"/{APP_URL}", max_file_size=MAX_FILE_SIZE_BYTES)
 
 # USAGE : uvicorn app:app --host 0.0.0.0 --port 7860 --reload

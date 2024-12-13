@@ -2,12 +2,11 @@ __all__ = ["app"]
 
 import gradio as gr
 import spaces
-from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MAX_FILE_SIZE
+from config import MODEL_MINIMUM_TOKENS, MAX_FILE_SIZE_BYTES
+from interfaces.utils import bino_predict, count_tokens as count_tokens, extract_pdf_content
 from interfaces.bino_singleton import BINO, TOKENIZER
 from binoculars.detector import BINOCULARS_THRESHOLD
 
-def count_tokens(text):
-    return bino_count_tokens(TOKENIZER, text)
 
 @spaces.GPU
 def handle_submit_text(threshold, input_text, pdf_file):
@@ -20,9 +19,9 @@ def handle_submit_text(threshold, input_text, pdf_file):
     if pdf_file is not None:
         content = extract_pdf_content(pdf_file.name)
     
-    content, score, threshold, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = bino_predict(BINO, content, threshold=threshold)
+    content, score, threshold, pred_class, pred_label, total_gpu_time, total_token_count, content_length, chunk_count = bino_predict(BINO, content, threshold=threshold)
 
-    return content, f"{score}", pred_label, f"{total_elapsed_time} seconds", total_token_count, content_length, chunk_count
+    return content[0], f"{score[0]}", pred_label[0], f"{total_gpu_time} seconds", total_token_count, content_length[0], chunk_count[0]
 
 
 css = """
@@ -94,7 +93,7 @@ with gr.Blocks(css=css,
         output_token_count = gr.Textbox(label="Token count", value="")
         output_content_length = gr.Textbox(label="Content length (char)", value="")
         output_chunk_count = gr.Textbox(label="Chunk count", value="")
-        output_time = gr.Textbox(label="Time elapsed", value="")
+        output_time = gr.Textbox(label="GPU time elapsed", value="")
 
     with gr.Row():
         gr.HTML("""<p><h2> See <a href="/docs" target="_blank">API doc</a> 🚀 </h2></p>""")
@@ -118,7 +117,7 @@ with gr.Blocks(css=css,
 
 def run_gradio(show_api=False, debug=True, share=False):
     # IMPORTANT : show_api layout is override in css
-    gradio_app.launch(show_api=show_api, debug=debug, share=share, max_file_size=MAX_FILE_SIZE)
+    gradio_app.launch(show_api=show_api, debug=debug, share=share, max_file_size=MAX_FILE_SIZE_BYTES)
 
 if __name__ == "__main__":
     # Launch the Gradio interface

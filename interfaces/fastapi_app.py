@@ -12,10 +12,11 @@ from datetime import datetime, timedelta, timezone
 import os
 from starlette.concurrency import run_in_threadpool
 
-from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MINIMUM_TOKENS, MAX_FILE_SIZE
+from config import MODEL_MINIMUM_TOKENS, MAX_FILE_SIZE_BYTES, API_AUTHORIZED_API_KEYS
+from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content
 from interfaces.bino_singleton import BINO, TOKENIZER
-from interfaces.fastapi_utils import Token, api_key_header, AUTHORIZED_API_KEYS, create_access_token, validate_token
-from interfaces.fastapi_model_type import PredictionResponse
+from interfaces.fastapi_utils import Token, api_key_header, create_access_token, validate_token
+from interfaces.fastapi_model_type import PredictionResponse, SinglePredictionResponse, ModelInfo
 
 BASE_API_URL = "/api/v1"
 
@@ -52,7 +53,7 @@ fastapi_app.add_middleware(
     tags=["Authentication"],
 )
 async def get_token(api_key: str = Security(api_key_header)):
-    if api_key not in AUTHORIZED_API_KEYS:
+    if api_key not in API_AUTHORIZED_API_KEYS:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API Key"
@@ -71,13 +72,13 @@ async def get_token(api_key: str = Security(api_key_header)):
     response_model=PredictionResponse,
 )
 async def process_content(
-    content: Optional[str] = Form(
+    contents: Optional[List[str]] = Form(
         None,
-        description="Text content to analyze",
+        description="Array of text content to analyze",
     ),
-    file: Optional[UploadFile] = File(
+    files: Optional[List[UploadFile]] = File(
         None,
-        description=f"PDF file to analyze (max {MAX_FILE_SIZE} Bytes)",
+        description=f"Array of PDF files to analyze (max {MAX_FILE_SIZE_BYTES} Bytes each)",
     ),
     threshold: Optional[float] = Form(
         None,
@@ -85,54 +86,90 @@ async def process_content(
     ),
     api_key: str = Depends(validate_token)
 ):
-  
     global BINO, TOKENIZER
 
-    if not content and not file:
-        raise HTTPException(status_code=400, detail="Either text or file must be provided.")
-
-    if content:
-        if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(status_code=400, detail="Text content exceeds maximum size limit.")
-    elif file:
-        try:
-            if file.content_type == "application/pdf":
-                # Extract text from the PDF file
-                content = extract_pdf_content(file.file)
-            else:
-                raise HTTPException(status_code=400, detail="Unsupported file type.")
-
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"An error occurred while processing the file: {str(e)}")
-    else:
-      raise HTTPException(status_code=400, detail="Invalid input.")
+    request_received_at = datetime.now(timezone.utc)
     
+    # Validate input
+    if not contents and not files:
+        raise HTTPException(
+            status_code=400, 
+            detail="Either text array or file array must be provided."
+        )
+
+    # Validate threshold
     if threshold is not None:
         try:
             threshold = float(threshold)
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid threshold value")
+            raise HTTPException(
+                status_code=400, 
+                detail="Invalid threshold value"
+            )
+
+    documents = []
     
-    if bino_count_tokens(TOKENIZER, content) < MINIMUM_TOKENS:
-        raise HTTPException(status_code=400, detail=f"Too short length. Need minimum {MINIMUM_TOKENS} tokens to run.")
+    # Process text contents
+    if contents:
+        for content in contents:
+            if len(content) > MAX_FILE_SIZE_BYTES:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Text content exceeds maximum size limit: {content[:50]}..."
+                )
+            documents.append(content)
+
+    # Process files
+    elif files:
+        for file in files:
+            try:
+                if file.content_type == "application/pdf":
+                    content = extract_pdf_content(file.file)
+                    documents.append(content)
+                else:
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"Unsupported file type for file: {file.filename}"
+                    )
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Error processing file {file.filename}: {str(e)}"
+                )
+    else:
+        raise HTTPException(
+            status_code=400, 
+            detail="No valid content to process"
+        )
     
     # long running task
-    content, score, threshold, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = await run_in_threadpool(bino_predict, BINO, content, threshold=threshold)
+    documents, score_list, threshold, pred_class_list, pred_label_list, total_gpu_time, total_token_count, document_length_list, document_chunks_count_list = await run_in_threadpool(bino_predict, BINO, documents, threshold=threshold)
+    
+    results = []
+    for idx in range(len(documents)):
+        result = SinglePredictionResponse(
+            score = score_list[idx],
+            label_class = pred_class_list[idx],
+            label = pred_label_list[idx],
+            content_length = document_length_list[idx],
+            chunk_count = document_chunks_count_list[idx],
+        )
 
-    return {
-        "score": score,
-        "class": pred_class,
-        "label": pred_label,
-        "total_elapsed_time": total_elapsed_time,
-        "total_token_count": total_token_count,
-        "content_length": content_length,
-        "chunk_count": chunk_count,
-        "model": {
-            "threshold": threshold,
-            "observer_model": BINO.observer_model_name,
-            "performer_model": BINO.performer_model_name,
-        },
-      }
+        results.append(result)
+    
+    return PredictionResponse(
+        model = ModelInfo(
+            threshold = threshold,
+            observer_model = BINO.observer_model_name,
+            performer_model = BINO.performer_model_name,
+        ),
+        total_gpu_time = total_gpu_time,
+        total_token_count = total_token_count,
+        request_received_at = request_received_at,
+        request_response_at = datetime.now(timezone.utc),
+        results = results,
+    )
+
 
 def run_fastapi(port=8080, host='0.0.0.0'):
     uvicorn.run(fastapi_app, port=port, host=host)

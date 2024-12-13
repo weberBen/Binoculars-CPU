@@ -1,6 +1,7 @@
 import requests
 import argparse
 import sys
+from contextlib import ExitStack
 
 def get_bearer_token(url, api_key):
     headers = {
@@ -16,26 +17,37 @@ def get_bearer_token(url, api_key):
         return None
 
 
-def send_post_request(url, token, text=None, file_path=None, threshold=None):
+def send_post_request(url, token, texts=None, file_paths=None, threshold=None):
     headers = {
        "Authorization": f"Bearer {token}"
     }
+
 
     data = {}
     if threshold is not None:
         data["threshold"] = threshold
 
-    if text:
+    if texts:      
         # Sending a POST request with text
+        texts = [texts] if isinstance(texts, str) else texts
+
         data = {
             **data,
-            "content": text
+            "contents": texts
         }
         response = requests.post(url, data=data, headers=headers)
-    elif file_path:
+    
+    elif file_paths:
         # Sending a POST request with a PDF file
-        with open(file_path, "rb") as f:
-            files = {"file": (file_path, f, "application/pdf")}
+        file_paths = [file_paths] if isinstance(file_paths, str) else file_paths
+
+        with ExitStack() as stack:
+            # Open all files at once and ensure they're properly closed
+            files = [
+                ("files", (path, stack.enter_context(open(path, "rb")), "application/pdf"))
+                for path in file_paths
+            ]
+            
             response = requests.post(url, data=data, files=files, headers=headers)
     else:
         print("Either text or file path must be provided.")
@@ -95,9 +107,10 @@ def parse_args():
     )
     input_group.add_argument(
         '--pdf',
-        help='Path to PDF file to analyze'
+        nargs='+',  # This means "one or more arguments"
+        help='Path to PDF file(s) to analyze'
     )
-
+    
     return parser.parse_args()
     
 
@@ -109,7 +122,10 @@ peered through telescopes with his large, round eyes, fellow researchers often r
 stars themselves whispered their secrets directly to him. Dr. Cosmos not only became a beacon of inspiration to
 aspiring scientists but also proved that intellect and innovation can be found in the most unexpected of creatures.'''
 
-SAMPLE_PDF_PATH = "assets/sample_input.pdf"
+SAMPLE_PDFS = {
+    "1": "assets/sample_input_1.pdf",
+    "2": "assets/sample_input_2.pdf",
+}
 
 def main():
     args = parse_args()
@@ -130,13 +146,17 @@ def main():
         send_post_request(
             f"{args.base_url}/predict",
             token,
-            text=text_content,
+            texts=text_content,
             threshold=args.threshold
         )
     else:  # PDF mode
-        if len(args.pdf.strip()) == 0:
-            print(f"Using sample PDF: {SAMPLE_PDF_PATH}")
-            pdf_path = SAMPLE_PDF_PATH
+        if len(args.pdf) == 1 and args.pdf[0].strip() in SAMPLE_PDFS:
+            pdf_path = SAMPLE_PDFS[args.pdf[0].strip()]
+            print(f"Using sample PDF: {pdf_path}")
+
+        elif len(args.pdf) == 2 and {args.pdf[0].strip(), args.pdf[1].strip()} == {"1", "2"}:
+            pdf_path = [SAMPLE_PDFS[args.pdf[0].strip()], SAMPLE_PDFS[args.pdf[1].strip()]]
+            print(f"Using samples PDFs: {pdf_path}")
         else:
             print(f"Using provided PDF: {args.pdf}")
             pdf_path = args.pdf
@@ -144,7 +164,7 @@ def main():
         send_post_request(
             f"{args.base_url}/predict",
             token,
-            file_path=pdf_path,
+            file_paths=pdf_path,
             threshold=args.threshold
         )
 
@@ -152,7 +172,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         print("\n", "*** Example usages ***")
         print("\t", "*", 'python script.py --text "" for using default demo text')
-        print("\t", "*", 'python script.py --pdf "" for using default demo pdf')
+        print("\t", "*", 'python script.py --pdf "1" for using default demo pdf 1')
+        print("\t", "*", 'python script.py --pdf "2" for using default demo pdf 2')
+        print("\t", "*", 'python script.py --pdf "1" "2" for using both demo pdf')
         print("")
 
     main()

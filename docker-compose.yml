@@ -15,14 +15,19 @@ services:
     environment:
       - ENVIRONMENT=development
       - BINOCULARS_FORCE_TO_CPU=false
-      - AUTHORIZED_API_KEYS=my_api_key_1|my_api_key_2
-      - SECRET_KEY=my_secret_key
-      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - API_AUTHORIZED_API_KEYS=my_api_key_1|my_api_key_2
+      - API_SECRET_KEY=my_secret_key
+      - API_ACCESS_TOKEN_EXPIRE_MINUTES=60
       - PORT=7860
       - BINOCULARS_THRESHOLD=0.99963529763794
       - BINOCULARS_OBSERVER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M
       - BINOCULARS_PERFORMER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M-Instruct
       - HF_HOME=/home/user/.cache/huggingface/hub
+      - HF_TOKEN=
+      - MODEL_CHUNK_SIZE=200
+      - MODEL_BATCH_SIZE=1
+      - MODEL_MINIMUM_TOKENS=64
+      - MAX_FILE_SIZE_BYTES=10000000
 
 networks:
   net:
