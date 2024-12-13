@@ -19,6 +19,9 @@ services:
       - SECRET_KEY=my_secret_key
       - ACCESS_TOKEN_EXPIRE_MINUTES=60
       - PORT=7860
+      - BINOCULARS_THRESHOLD=0.99963529763794
+      - BINOCULARS_OBSERVER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M
+      - BINOCULARS_PERFORMER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M-Instruct
 
 networks:
   net:

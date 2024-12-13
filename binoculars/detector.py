@@ -12,8 +12,16 @@ from .metrics import perplexity, entropy
 
 torch.set_grad_enabled(False)
 
-# selected using Falcon-7B and Falcon-7B-Instruct at bfloat16
-BINOCULARS_THRESHOLD = 0.99963529763794
+# get threshold from env var
+BINOCULARS_THRESHOLD =  os.getenv("BINOCULARS_THRESHOLD", "")
+BINOCULARS_THRESHOLD = float(BINOCULARS_THRESHOLD)
+assert(type(BINOCULARS_THRESHOLD) is float)
+
+BINOCULARS_OBSERVER_MODEL_NAME = os.getenv("BINOCULARS_OBSERVER_MODEL_NAME", "").strip()
+assert(len(BINOCULARS_OBSERVER_MODEL_NAME) > 0)
+
+BINOCULARS_PERFORMER_MODEL_NAME = os.getenv("BINOCULARS_PERFORMER_MODEL_NAME", "").strip()
+assert(len(BINOCULARS_PERFORMER_MODEL_NAME) > 0)
 
 BINOCULARS_FORCE_TO_CPU = os.getenv("BINOCULARS_FORCE_TO_CPU", "False").lower() in ("true", "1", "yes")
 
@@ -26,8 +34,8 @@ if BINOCULARS_FORCE_TO_CPU:
 
 class Binoculars(object):
     def __init__(self,
-                 observer_name_or_path: str = "HuggingFaceTB/SmolLM2-135M",
-                 performer_name_or_path: str = "HuggingFaceTB/SmolLM2-135M-Instruct",
+                 observer_name_or_path: str = BINOCULARS_OBSERVER_MODEL_NAME,
+                 performer_name_or_path: str = BINOCULARS_PERFORMER_MODEL_NAME,
                  use_bfloat16: bool = True,
                  max_token_observed: int = 512,
                  mode: str = "low-fpr",
@@ -36,6 +44,7 @@ class Binoculars(object):
 
         self.threshold = BINOCULARS_THRESHOLD
 
+        self.observer_model_name = observer_name_or_path
         self.observer_model = AutoModelForCausalLM.from_pretrained(observer_name_or_path,
                                                                    device_map={"": DEVICE_1},
                                                                    trust_remote_code=True,
@@ -43,6 +52,7 @@ class Binoculars(object):
                                                                    else torch.float32,
                                                                    token=huggingface_config["TOKEN"]
                                                                    )
+        self.performer_model_name = performer_name_or_path
         self.performer_model = AutoModelForCausalLM.from_pretrained(performer_name_or_path,
                                                                     device_map={"": DEVICE_2},
                                                                     trust_remote_code=True,

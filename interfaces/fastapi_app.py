@@ -15,6 +15,7 @@ from starlette.concurrency import run_in_threadpool
 from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MINIMUM_TOKENS, MAX_FILE_SIZE
 from interfaces.bino_singleton import BINO, TOKENIZER
 from interfaces.fastapi_utils import Token, api_key_header, AUTHORIZED_API_KEYS, create_access_token, validate_token
+from interfaces.fastapi_model_type import PredictionResponse
 
 BASE_API_URL = "/api/v1"
 
@@ -67,6 +68,7 @@ async def get_token(api_key: str = Security(api_key_header)):
     f"{BASE_API_URL}/predict/",
     summary="AI/Human Content Detection",
     tags=["Prediction"],
+    response_model=PredictionResponse,
 )
 async def process_content(
     content: Optional[str] = Form(
@@ -125,7 +127,11 @@ async def process_content(
         "total_token_count": total_token_count,
         "content_length": content_length,
         "chunk_count": chunk_count,
-        "threshold": threshold, 
+        "model": {
+            "threshold": threshold,
+            "observer_model": BINO.observer_model_name,
+            "performer_model": BINO.performer_model_name,
+        },
       }
 
 def run_fastapi(port=8080, host='0.0.0.0'):

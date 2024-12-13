@@ -76,6 +76,10 @@ with gr.Blocks(css=css,
                 )
     
     with gr.Row():
+        gr.HTML(f"<h5> Observer model: {BINO.observer_model_name} <h5>")
+        gr.HTML(f"<h5> Performer model: {BINO.performer_model_name} <h5>")
+    
+    with gr.Row():
         input_box = gr.Textbox(value=capybara_problem, placeholder="Enter text here", lines=8, label="Input Text")
         pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"], file_count="single")
     with gr.Row():
