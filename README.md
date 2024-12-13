@@ -25,6 +25,7 @@ See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of 
   - **Consumer-grade CPU 4x2.60GHz (16GB RAM)**: ~10 tokens/second (1 minute 30 seconds for 1,000 tokens).
 
 In fact, this code does not requires 16GB of RAM but consumes around 3GB.
+
 ---
 
 ## **Installation**
