@@ -126,8 +126,11 @@ You need to change the following env variables:
 - `AUTHORIZED_API_KEYS` : authorized key for auth (equivalent of password)
 - `SECRET_KEY` : secret key used for the API token encryption
 - `ACCESS_TOKEN_EXPIRE_MINUTES` : duration of the bearer token
+- `HF_HOME` : HuggingFace transformers cache directory where models are download (make sure to set it to persistent storage in order to avoid re-download after each startup. Only mandatory when using large model, not small model like the default one of this repo.)
 
 See all the available variables in the docker-compose file.
+
+Note that HuggingFace cold boot [can takes serval minutes](https://discuss.huggingface.co/t/slow-space-cold-boot/72154), which need to be taken into account for the hardware pricing and sleep time (after the initial startup that need to download models).
 
 ---
 

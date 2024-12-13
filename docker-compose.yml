@@ -22,6 +22,7 @@ services:
       - BINOCULARS_THRESHOLD=0.99963529763794
       - BINOCULARS_OBSERVER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M
       - BINOCULARS_PERFORMER_MODEL_NAME=HuggingFaceTB/SmolLM2-135M-Instruct
+      - HF_HOME=/home/user/.cache/huggingface/hub
 
 networks:
   net:
