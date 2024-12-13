@@ -119,6 +119,18 @@ Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-
 
 ---
 
+## **Production mode**
+
+You need to change the following env variables:
+
+- `AUTHORIZED_API_KEYS` : authorized key for auth (equivalent of password)
+- `SECRET_KEY` : secret key used for the API token encryption
+- `ACCESS_TOKEN_EXPIRE_MINUTES` : duration of the bearer token
+
+See all the available variables in the docker-compose file.
+
+---
+
 ## **Usage Notes**
 
 - When initializing models, you may encounter the following warning:
