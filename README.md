@@ -132,5 +132,5 @@ Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-
   ```
   This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
 - When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space. But do not keep an active session open (where user can interact with or the focus tab of a browser)**.
-- Each content is split into multiple chunks (defined by the variable `TEXT_CHUNK_SIZE`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
+- For a document that exceeds the chunk limit, it will be cut into multiple chunks. The associated document score is the average of all chunk scores.
 
