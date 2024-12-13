@@ -101,28 +101,34 @@ class Binoculars(object):
         binoculars_scores = binoculars_scores.tolist()
         return binoculars_scores[0] if isinstance(input_text, str) else binoculars_scores
     
-    def score_to_label(self, binoculars_scores):
-        return np.where(binoculars_scores < self.threshold,
+    def score_to_label(self, binoculars_scores, threshold: float = None):
+        threshold = self.threshold if threshold is None else threshold
+        return np.where(binoculars_scores < threshold,
                 "Most likely AI-generated",
                 "Most likely human-generated"
             ).tolist()
 
-    def score_to_class(self, binoculars_scores):
+    def score_to_class(self, binoculars_scores, threshold: float = None):
         '''
         class 0 : Ai generated
         class 1 : Human generated
         '''
-        
-        return np.where(binoculars_scores < self.threshold,
+
+        threshold = self.threshold if threshold is None else threshold
+        return np.where(binoculars_scores < threshold,
                 0,
                 1
             ).tolist()
 
-    def predict(self, input_text: Union[list[str], str], return_fields: list[str] = None):
+    def predict(self, input_text: Union[list[str], str], return_fields: list[str] = None, threshold: float = None):
         '''
         Predict result AI/Human input text generated
         Return additional field in the order of the field name in `return_fields`
         '''
+
+        # Add dynamic threshold to allow concurrent request to use the same binoculars instance
+        # without changing it for all the instances
+        threshold = self.threshold if threshold is None else threshold
 
         if return_fields is None:
             return_fields = ["label"]
@@ -132,11 +138,13 @@ class Binoculars(object):
         
         for field in return_fields:
             if field == "label":
-                item = self.score_to_label(binoculars_scores)
+                item = self.score_to_label(binoculars_scores, threshold=threshold)
             elif field == "score":
                 item = binoculars_scores
             elif field == "class":
-                item = self.score_to_class(binoculars_scores)
+                item = self.score_to_class(binoculars_scores, threshold=threshold)
+            elif field == "threshold":
+                item = threshold
             else:
                 raise Exception(f"Invalid field type '{field}'")
 

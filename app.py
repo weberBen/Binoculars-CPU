@@ -30,4 +30,4 @@ async def root(request: Request, accept: str = Header(default=None)):
 
 app = gr.mount_gradio_app(fastapi_app, gradio_app, path=f"/{APP_URL}", max_file_size=MAX_FILE_SIZE)
 
-# USAGE : uvicorn app:app --host 0.0.0.0 --port 7860
+# USAGE : uvicorn app:app --host 0.0.0.0 --port 7860 --reload

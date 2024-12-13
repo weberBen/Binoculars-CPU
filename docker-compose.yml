@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     working_dir: /app
-    command: uvicorn app:app --host 0.0.0.0 --port 7860
+    command: uvicorn app:app --host 0.0.0.0 --port 7860 --reload
     ports:
       - "7860:7860"  # Gradio app port
       - "8080:8080"  # fastapi app port

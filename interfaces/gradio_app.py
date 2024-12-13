@@ -4,45 +4,25 @@ import gradio as gr
 import spaces
 from interfaces.utils import bino_predict, count_tokens as bino_count_tokens, extract_pdf_content, MAX_FILE_SIZE
 from interfaces.bino_singleton import BINO, TOKENIZER
+from binoculars.detector import BINOCULARS_THRESHOLD
 
 def count_tokens(text):
-    if TOKENIZER is None:
-        raise ValueError("Model is not loaded. Please load the model first.")
     return bino_count_tokens(TOKENIZER, text)
 
 @spaces.GPU
-def handle_submit_text(input_text, pdf_file):
-    if BINO is None:
-        gr.Error("Model is not loaded. Please load the model first.")
-        return None
-     
+def handle_submit_text(threshold, input_text, pdf_file):
+    try:
+        threshold = float(threshold)
+    except ValueError:
+        raise gr.Error("Invalid threshold value. Please enter a numeric value.")
+    
     content = input_text
     if pdf_file is not None:
         content = extract_pdf_content(pdf_file.name)
     
-    content, score, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = bino_predict(BINO, content)
+    content, score, threshold, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = bino_predict(BINO, content, threshold=threshold)
 
     return content, f"{score}", pred_label, f"{total_elapsed_time} seconds", total_token_count, content_length, chunk_count
-
-
-def set_threshold(threshold):
-    if BINO is None:
-        gr.Error("Model is not loaded. Please load the model first.")
-        return threshold
-    
-    if threshold is None:
-        BINO.set_threshold()
-    else:
-        try:
-            threshold = float(threshold)
-            BINO.set_threshold(threshold)
-        except ValueError:
-            BINO.set_threshold()
-            gr.Error("Invalid threshold value. Please enter a numeric value.")
-    
-    gr.Info("New threshold applied. Re-run detector")
-
-    return f"{BINO.get_threshold()}"
 
 
 css = """
@@ -78,7 +58,7 @@ with gr.Blocks(css=css,
                 with gr.Row():
                     gr.HTML("""<h3> Keep in mind that the same model is shared across all requests (GUI/API).
                                     Your request are queued and process later. Consequently waiting time does not reflect the actual
-                                    processing time, which elapsed time parameter return for every request is
+                                    processing time, which elapsed time parameter return for every request is.
                                 </h3>
                             """)
         with gr.Column(scale=1):
@@ -99,8 +79,7 @@ with gr.Blocks(css=css,
         input_box = gr.Textbox(value=capybara_problem, placeholder="Enter text here", lines=8, label="Input Text")
         pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"], file_count="single")
     with gr.Row():
-        threshold_box = gr.Textbox(value=f"{BINO.get_threshold()}", placeholder="Enter threshold here", lines=1, label="Detection threshold")
-        change_threshold_button = gr.Button("Change threshold")
+        threshold_box = gr.Textbox(value=f"{BINOCULARS_THRESHOLD}", placeholder="Enter threshold here", lines=1, label="Detection threshold")
         reset_threshold_button = gr.Button("Reset threshold")
     with gr.Row():
         submit_button = gr.Button("Run", variant="primary")
@@ -122,15 +101,14 @@ with gr.Blocks(css=css,
                                 output_content_length, output_chunk_count, pdf_input]
                     )
     
-    change_threshold_button.click(set_threshold, inputs=threshold_box, outputs=threshold_box)
-    reset_threshold_button.click(set_threshold, inputs=None, outputs=threshold_box)
+    reset_threshold_button.click(lambda: (BINOCULARS_THRESHOLD), outputs=threshold_box)
 
     submit_button.click(
-        lambda input_text, pdf_file: (*handle_submit_text(input_text, pdf_file), None, BINO.get_threshold()),
-        inputs=[input_box, pdf_input],
+        lambda threshold_input, input_text, pdf_file: (*handle_submit_text(threshold_input, input_text, pdf_file), None),
+        inputs=[threshold_box, input_box, pdf_input],
         outputs=[input_box, output_score, output_label, output_time,
-                 output_token_count, output_content_length, output_chunk_count,
-                 pdf_input, threshold_box
+                 output_token_count, output_content_length,
+                 output_chunk_count, pdf_input
                 ]
     )
 

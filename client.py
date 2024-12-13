@@ -14,20 +14,27 @@ def get_bearer_token(url, api_key):
         return None
 
 
-def send_post_request(url, token, text=None, file_path=None):
+def send_post_request(url, token, text=None, file_path=None, threshold=None):
     headers = {
        "Authorization": f"Bearer {token}"
     }
 
+    data = {}
+    if threshold is not None:
+        data["threshold"] = threshold
+
     if text:
         # Sending a POST request with text
-        data = {"content": text}
+        data = {
+            **data,
+            "content": text
+        }
         response = requests.post(url, data=data, headers=headers)
     elif file_path:
         # Sending a POST request with a PDF file
         with open(file_path, "rb") as f:
             files = {"file": (file_path, f, "application/pdf")}
-            response = requests.post(url, files=files, headers=headers)
+            response = requests.post(url, data=data, files=files, headers=headers)
     else:
         print("Either text or file path must be provided.")
         return
@@ -51,10 +58,12 @@ aspiring scientists but also proved that intellect and innovation can be found i
 
 token = get_bearer_token(f"{BASE_API_URL}/auth/token", api_key)
 
+threshold = None # threshold AI/Human detection, None for using default threshold
+
 print("Sending raw text request...")
 # Send text content
-send_post_request(f"{BASE_API_URL}/predict", token, text=sample_string)
+send_post_request(f"{BASE_API_URL}/predict", token, text=sample_string, threshold=threshold)
 
 print("Sending pdf request...")
 # Send a PDF file
-send_post_request(f"{BASE_API_URL}/predict", token, file_path="assets/sample_input.pdf")
+send_post_request(f"{BASE_API_URL}/predict", token, file_path="assets/sample_input.pdf", threshold=threshold)

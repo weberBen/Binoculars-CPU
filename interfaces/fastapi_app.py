@@ -77,6 +77,10 @@ async def process_content(
         None,
         description=f"PDF file to analyze (max {MAX_FILE_SIZE} Bytes)",
     ),
+    threshold: Optional[float] = Form(
+        None,
+        description="Threshold detection AI/Human",
+    ),
     api_key: str = Depends(validate_token)
 ):
   
@@ -88,7 +92,6 @@ async def process_content(
     if content:
         if len(content) > MAX_FILE_SIZE:
             raise HTTPException(status_code=400, detail="Text content exceeds maximum size limit.")
-
     elif file:
         try:
             if file.content_type == "application/pdf":
@@ -102,11 +105,17 @@ async def process_content(
     else:
       raise HTTPException(status_code=400, detail="Invalid input.")
     
+    if threshold is not None:
+        try:
+            threshold = float(threshold)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid threshold value")
+    
     if bino_count_tokens(TOKENIZER, content) < MINIMUM_TOKENS:
         raise HTTPException(status_code=400, detail=f"Too short length. Need minimum {MINIMUM_TOKENS} tokens to run.")
     
     # long running task
-    content, score, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = await run_in_threadpool(bino_predict, BINO, content)
+    content, score, threshold, pred_class, pred_label, total_elapsed_time, total_token_count, content_length, chunk_count = await run_in_threadpool(bino_predict, BINO, content, threshold=threshold)
 
     return {
         "score": score,
@@ -116,6 +125,7 @@ async def process_content(
         "total_token_count": total_token_count,
         "content_length": content_length,
         "chunk_count": chunk_count,
+        "threshold": threshold, 
       }
 
 def run_fastapi(port=8080, host='0.0.0.0'):

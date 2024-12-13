@@ -34,14 +34,14 @@ def split_text(input_text):
     
     return result
 
-def run_bino(bino, content):
+def run_bino(bino, content, threshold=None):
   start_time = time.time()  # Start the timer
-  pred_class, pred_label, score = bino.predict(content, return_fields=["class", "label", "score"])
+  pred_class, pred_label, score, threshold = bino.predict(content, return_fields=["class", "label", "score", "threshold"], threshold=threshold)
   elapsed_time = time.time() - start_time
   
-  return score, pred_class, pred_label, elapsed_time, count_tokens(bino.tokenizer, content)
+  return score, threshold, pred_class, pred_label, elapsed_time, count_tokens(bino.tokenizer, content)
 
-def bino_predict(bino, content):
+def bino_predict(bino, content, threshold=None):
     # Attempt to encode the string to bytes and then decode back to a string
     content = content.encode('utf-8').decode('utf-8')
 
@@ -54,15 +54,15 @@ def bino_predict(bino, content):
 
     content_list = split_text(content)
     for content in content_list:
-        score, pred_class, pred_label, elapsed_time, token_count = run_bino(bino, content)
+        score, threshold, pred_class, pred_label, elapsed_time, token_count = run_bino(bino, content, threshold=threshold)
 
         total_score += score
         total_elapsed_time += elapsed_time
         total_token_count += token_count
 
     score = total_score/len(content_list)
-    pred_class = bino.score_to_class(score)
-    pred_label = bino.score_to_label(score)
+    pred_class = bino.score_to_class(score, threshold=threshold)
+    pred_label = bino.score_to_label(score, threshold=threshold)
     content = " ".join(content_list)
 
-    return content, score, pred_class, pred_label, total_elapsed_time, total_token_count, len(content), len(content_list)
+    return content, score, threshold, pred_class, pred_label, total_elapsed_time, total_token_count, len(content), len(content_list)
