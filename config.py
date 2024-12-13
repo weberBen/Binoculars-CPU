@@ -4,7 +4,7 @@ from env_utils import cast_string, cast_int, cast_float, cast_list, cast_bool
 #%%
 
 HUGGINGFACE_CONFIG = {
-  "TOKEN": cast_string("HF_TOKEN", default=None)
+  "TOKEN": cast_string("HF_TOKEN", default="", empty_to_none=True)
 }
 
 BINOCULARS_THRESHOLD = cast_float("BINOCULARS_THRESHOLD")

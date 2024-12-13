@@ -14,13 +14,15 @@ def cast_int(key, default=""):
 
   return item
 
-def cast_string(key, default="", require=False, strip=True):
+def cast_string(key, default="", require=False, strip=True, empty_to_none=False):
   item = os.getenv(key, default)
   if strip:
      item.strip()
   
   if require:
     assert(len(item) > 0)
+  if len(item) == 0 and empty_to_none:
+    item = None
   
   return item
 
