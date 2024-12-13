@@ -107,18 +107,6 @@ Notes
 
 ---
 
-## **Usage notes**
-
-- When initializing models, you may encounter the following warning:
-  ```
-  Some weights of LlamaForCausalLM were not initialized from the model checkpoint at HuggingFaceTB/SmolLM2-135M and are newly initialized.
-  ```
-  This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
-- When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space. But do not keep an active session open (where user can interact with or the focus tab of a browser)**.
-- Each content is split into multiple chunks (defined by the variable `TEXT_CHUNK_SIZE`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
-
----
-
 ## **Model customization**
 
 To change the models:
@@ -133,3 +121,16 @@ To change the models:
    - For simplicity, the code employs a single threshold for high accuracy. However, the original Binoculars paper recommends using two thresholds for optimizing either low false positive rates or high accuracy.
 
 Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-instruct` with threshold optimize for accuracy `0.9015310749276843` or optimize for low false positive rate `0.8536432310785527`.
+
+---
+
+## **Usage notes**
+
+- When initializing models, you may encounter the following warning:
+  ```
+  Some weights of LlamaForCausalLM were not initialized from the model checkpoint at HuggingFaceTB/SmolLM2-135M and are newly initialized.
+  ```
+  This message is safe to **ignore**. It does not impact the model's runtime or accuracy ([see here](https://huggingface.co/LeoLM/leo-hessianai-13b-chat/discussions/3), [and there](https://huggingface.co/codellama/CodeLlama-7b-hf/discussions/1)).
+- When server is started you will see a "spamming" process in the uvicorn log that ping the route home `/`. It's the `init-proc` process of HuggingFace that start the uvicorn process. **It does not affect the sleep timeout of the HuggingFace space. But do not keep an active session open (where user can interact with or the focus tab of a browser)**.
+- Each content is split into multiple chunks (defined by the variable `TEXT_CHUNK_SIZE`). Then, each chunk is processed through Binoculars, and the final score is the average of all chunk scores.
+
