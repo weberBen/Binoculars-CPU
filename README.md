@@ -11,6 +11,7 @@ See the online demo : [here 🚀](https://ben-weber-binoculars-cpu.hf.space/app)
 ---
 
 The app allow you to run Binoculars with either **raw text** or **pdf**, via **GUI** (`Gradio`) or **API** (`FastAPI`) with token auth.
+This code can either be run on CPU, as primarily intended, or GPU.
 
 See the original paper : [Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text](https://arxiv.org/abs/2401.12070).
 
