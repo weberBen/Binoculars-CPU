@@ -41,17 +41,17 @@ In fact, this code does not requires 16GB of RAM but consumes around 3GB.
 
 See API docs at `/docs` for the real route, arguments and response usage.
 
-   ```bash
+   ```json
    [POST] /.../predict/
    {
       "contents": ["my text 1", "my text 2"]
    }
    ```
 
-   ```bash
+   ```json
    [POST] /.../predict/
    {
-      "files": [<pdf_file_1>, <pdf_file_2>]
+      "files": ["<pdf_obj_1>", "<pdf_obj_2>"]
    }
    ```
    
