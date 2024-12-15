@@ -57,8 +57,8 @@ See API docs at `/docs` for the real route, arguments and response usage.
    
    ```json
    {
-      "total_gpu_time": 23.35552716255188,
-      "total_token_count": 134,
+      "total_gpu_time": 12.35552716255188,
+      "total_token_count": 2081,
       "model": {
          "threshold": 0.99963529763794,
          "observer_model": "HuggingFaceTB/SmolLM2-135M",
