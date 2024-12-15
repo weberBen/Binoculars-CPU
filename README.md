@@ -42,16 +42,16 @@ In fact, this code does not requires 16GB of RAM but consumes around 3GB.
 See API docs at `/docs` for the real route, arguments and response usage.
 
    ```bash
-   /.../predict/ [POST]
+   [POST] /.../predict/
    {
-      "contents": ["my text 1"]
+      "contents": ["my text 1", "my text 2"]
    }
    ```
 
    ```bash
-   /.../predict/ [POST]
+   [POST] /.../predict/
    {
-      "pdfs": ["file_path_1", "file_path_2"]
+      "files": [<pdf_file_1>, <pdf_file_2>]
    }
    ```
    
