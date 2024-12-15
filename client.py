@@ -22,7 +22,6 @@ def send_post_request(url, token, texts=None, file_paths=None, threshold=None):
        "Authorization": f"Bearer {token}"
     }
 
-
     data = {}
     if threshold is not None:
         data["threshold"] = threshold

@@ -41,20 +41,32 @@ In fact, this code does not requires 16GB of RAM but consumes around 3GB.
 
 See API docs at `/docs` for the real route, arguments and response usage.
 
-   ```json
-   [POST] /.../predict/
-   {
-      "contents": ["my text 1", "my text 2"]
+**Request:**
+
+   ```python
+   data = {
+      "contents": [
+         "my_text_1",
+         "my_text_2"
+      ]
    }
+
+   requests.post(f"{API_URL}/predict", data=data)
    ```
 
-   ```json
-   [POST] /.../predict/
-   {
-      "files": ["<pdf_obj_1>", "<pdf_obj_2>"]
-   }
+OR
+
+   ```python
+   files = [
+      ('files', open('file1.pdf', 'rb')),
+      ('files', open('file2.pdf', 'rb'))
+   ]
+
+   requests.post(f"{API_URL}/predict", files=files)
    ```
-   
+
+**Response:**
+
    ```json
    {
       "total_gpu_time": 12.35552716255188,
