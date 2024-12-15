@@ -73,7 +73,7 @@ See API docs at `/docs` for the real route, arguments and response usage.
             "chunk_count": 1
          },
          {
-            ...
+            "..."
          }
       ]
    }
