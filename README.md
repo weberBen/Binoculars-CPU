@@ -29,30 +29,97 @@ In fact, this code does not requires 16GB of RAM but consumes around 3GB.
 
 ---
 
+## **Usage**
+
+ - Navigate to the HuggingFace url or in a local install case to `http://127.0.0.1:7860` in your web browser to access the app (defined in `app.py`).
+ - See the GUI interface at `/app`
+ - See the API doc at `/docs`.
+   - Default api key is `my_api_key_1`.
+   - You can test the API with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
+
+### **API usage**
+
+See API docs at `/docs` for the real route, arguments and response usage.
+
+   ```bash
+   /.../predict/ [POST]
+   {
+      "contents": ["my text 1"]
+   }
+   ```
+
+   ```bash
+   /.../predict/ [POST]
+   {
+      "pdfs": ["file_path_1", "file_path_2"]
+   }
+   ```
+   
+   ```json
+   {
+      "total_gpu_time": 23.35552716255188,
+      "total_token_count": 134,
+      "model": {
+         "threshold": 0.99963529763794,
+         "observer_model": "HuggingFaceTB/SmolLM2-135M",
+         "performer_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      },
+      "results": [
+         {
+            "score": 0.8846334218978882,
+            "class_label": 0,
+            "label": "Most likely AI-generated",
+            "content_length": 661,
+            "chunk_count": 1
+         }
+      ]
+   }
+   ```
+
+### **Model usage**
+
+```python
+from binoculars import Binoculars
+
+bino = Binoculars()
+
+pred_class, pred_label, score = bino.predict(
+   "my text", return_fields=["class", "label", "score"])
+
+print(pred_class, pred_label, score) # Most likely AI-generated, 0, 0.8846334218978882
+```
+
+---
+
 ## **Installation**
 
 Keep in mind that the same instance of Binoculars model is being used by all requests (GUI/API) defined in `interface/bino_singleton.py`. In fact instantiating 2 instances of Binoculars model will requires 2x more VRAM or CPU usage/Memory.
 
-### **No code HuggingFace deployment**
+### **HuggingFace deployment**
 
-You can directly clone the HuggingFace Space [here](https://huggingface.co/spaces/ben-weber/Binoculars-CPU).
+#### **No code**
 
-Or you can manually create a new space :
+You can use the no code install by cloning the HuggingFace Space [here](https://huggingface.co/spaces/ben-weber/Binoculars-CPU).
 
-1. Clone this repository to your HuggingFace Space.
-2. Rename this `README.md` to `README-doc.md`
-3. Rename `README-HuggingFace-Space.md` to `README.md`
-4. Rebuild the app within HuggingFace.
-5. The application will run on the `CPU Basic` free hardware tier.
+#### **Manual**
 
-You can switch between hardware on HuggingFace to switch from CPU to GPU without impacting the inner working of this code.
+You can manually install the HuggingFace Space :
 
-If you want to run the application on a private HuggingFace space you can enable the dev mode and make a ssh port forwarding :
+- Create a new HuggingFace Space
+- Select the desired hardware (the application will run on the `CPU Basic` free hardware tier).
+- Clone this repository to your HuggingFace Space.
+- Rename this `README.md` to `README-doc.md`.
+- Rename `README-HuggingFace-Space.md` to `README.md`.
+- Set the env variable (see the production mode section).
+- Run the factory rebuild.
 
+#### **Notes**
+
+- You can switch between hardware on HuggingFace from CPU to GPU without impacting the inner working of this code.
+- If you want to run the application on a private HuggingFace space you can enable the dev mode and make a ssh port forwarding :
 ```bash
 ssh -L 7860:127.0.0.1:7860 username@ssh.hf.space
 ```
-
 And then go to `127.0.0.1:7860`.
 
 ### **Local setup**
@@ -63,21 +130,15 @@ And then go to `127.0.0.1:7860`.
    docker compose up
    ```
 
-2. **Access the app**:
-   - Navigate to `http://127.0.0.1:7860` in your web browser to access the app (define in `app.py`).
-   - See the GUI interface at `/app`
-   - See the API doc at `/docs`.
-     - Default api key is `my_api_key_1`.
-     - You can test the API with `client.py` which allow you to run Binoculars either on raw text or with a pdf.
+And then go to `127.0.0.1:7860`.
 
+You can also run model directly with :
 
-3. **Run Binoculars directly**:
-   ```bash
-   docker compose exec binoculars bash -c "python main.py"
-   ```
+```bash
+docker compose exec binoculars bash -c "python main.py"
+```
 
-  You can enforce CPU usage by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
-
+Note that you can enforce CPU usage even if GPU/cuda is available on your computer by setting the `BINOCULARS_FORCE_TO_CPU` environment variable.
 
 ---
 
@@ -125,7 +186,7 @@ Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-
 
 ---
 
-## **Usage notes**
+## **Notes**
 
 - When initializing models, you may encounter the following warning:
   ```
