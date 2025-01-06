@@ -2,7 +2,7 @@
 
 This project adapts the [Binoculars](https://github.com/ahans30/Binoculars) code, which it heavily rely on, to run efficiently on CPUs by leveraging smaller language models for both the observer and reference models. Specifically, it uses the [`SmolLM2-135M`](https://huggingface.co/HuggingFaceTB/SmolLM2-135M) language model.
 
-See the online demo : [here 🚀](https://huggingface.co/spaces/ben-weber/Binoculars-CPU) and go to the app url (you might need to wait for the app to restart after a long period of nonactivity).
+See the online demo : [here 🚀](https://huggingface.co/spaces/ben-weber/Binoculars-CPU) and go to the app url (you might need to wait for the app to restart after a long period of nonactivity). Note that, short-length content may require similar processing time as long-length content because only the latter benefits from parallelization.
 
 ![Demo Interface](assets/gradio-interface.png)
 
@@ -203,6 +203,7 @@ Models used in the original paper were `tiiuae/falcon-7b` and `tiiuae/falcon-7b-
 
 ## **Notes**
 
+- Short-length content may require similar processing time as long-length content because only the latter benefits from parallelization.
 - When initializing models, you may encounter the following warning:
   ```
   Some weights of LlamaForCausalLM were not initialized from the model checkpoint at HuggingFaceTB/SmolLM2-135M and are newly initialized.
