@@ -55,11 +55,17 @@ with gr.Blocks(css=css,
                 with gr.Row():
                     gr.HTML("<h1> Binoculars (zero-shot llm-text detector) with CPU inference</h1>")
                 with gr.Row():
-                    gr.HTML("""<h3> Keep in mind that the same model is shared across all requests (GUI/API).
-                                    Your request are queued and process later. Consequently waiting time does not reflect the actual
-                                    processing time, which elapsed time parameter return for every request is.
-                                </h3>
-                            """)
+                    gr.HTML("""
+                        <h3> 
+                            Keep in mind that the same model is shared across all requests (GUI/API).
+                            Your request are queued and process later. Consequently waiting time does not reflect the actual
+                            processing time, which elapsed time parameter return for every request is.
+
+                            <br>
+
+                            Short-length content may require similar processing time as long-length content because only the latter benefits from parallelization.
+                        </h3>
+                    """)
         with gr.Column(scale=1):
                 gr.HTML("""
                     <p>
