@@ -15,7 +15,7 @@ services:
     environment:
       - ENVIRONMENT=development
       - BINOCULARS_FORCE_TO_CPU=false
-      - API_AUTHORIZED_API_KEYS=my_api_key_1|my_api_key_2
+      - API_AUTHORIZED_KEYS=my_api_key_1|my_api_key_2
       - API_SECRET_KEY=my_secret_key
       - API_ACCESS_TOKEN_EXPIRE_MINUTES=60
       - PORT=7860

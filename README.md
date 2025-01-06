@@ -161,7 +161,7 @@ Note that you can enforce CPU usage even if GPU/cuda is available on your comput
 
 You need to change the following env variables:
 
-- `API_AUTHORIZED_API_KEYS` : authorized key for auth (equivalent of password)
+- `API_AUTHORIZED_KEYS` : authorized key for auth (equivalent of password)
 - `API_SECRET_KEY` : secret key used for the API token encryption
 - `API_ACCESS_TOKEN_EXPIRE_MINUTES` : duration of the bearer token
 - `HF_HOME` : HuggingFace transformers cache directory where models are download (make sure to set it to persistent storage in order to avoid re-download after each startup. Only mandatory when using large model, not small model like the default one of this repo.)

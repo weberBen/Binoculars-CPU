@@ -6,7 +6,7 @@ from fastapi.security.api_key import APIKeyHeader
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Union, Optional, List
-from config import API_SECRET_KEY, API_ENCRYPT_ALGORITHM, API_ACCESS_TOKEN_EXPIRE_MINUTES, API_AUTHORIZED_API_KEYS
+from config import API_SECRET_KEY, API_ENCRYPT_ALGORITHM, API_ACCESS_TOKEN_EXPIRE_MINUTES, API_AUTHORIZED_KEYS
 
 # Models
 class Token(BaseModel):
@@ -48,7 +48,7 @@ async def validate_token(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, API_SECRET_KEY, algorithms=[API_ENCRYPT_ALGORITHM])
         api_key: str = payload.get("key")
-        if api_key is None or (api_key not in API_AUTHORIZED_API_KEYS):
+        if api_key is None or (api_key not in API_AUTHORIZED_KEYS):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
